@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>{{ plant.name }} Dashboard</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <style>
+    body {
+      background: #043600;
+      color: white;
+      padding: 2rem;
+      font-family: Arial, sans-serif;
+    }
+    .card {
+      background: #006c3b;
+      border-radius: 1rem;
+      padding: 1rem;
+      margin-bottom: 2rem;
+      box-shadow: 0 0 10px #00000066;
+    }
+    h1, h2, h3 {
+      font-weight: bold;
+    }
+    button {
+      margin-top: 10px;
+    }
+    img.plant-photo {
+      margin-top: 15px;
+      max-width: 100%;
+      border-radius: 8px;
+      border: 1px solid #444;
+      display: block;
+    }
+    .history {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 20px;
+    }
+    .history img {
+      max-width: 150px;
+      border: 1px solid #444;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: transform 0.2s ease;
+    }
+    .history img:hover {
+      transform: scale(1.1);
+    }
+    .info-card {
+      background: #004d26;
+      padding: 1rem;
+      margin-bottom: 2rem;
+      border-radius: 1rem;
+      box-shadow: 0 0 8px #00000099;
+    }
+    .info-card h3 {
+      margin: 0.3rem 0;
+      font-weight: normal;
+    }
+    .info-card h3 span {
+      font-weight: bold;
+      color: #b3f59b;
+    }
+    .calendar {
+      background: white;
+      color: black;
+      padding: 1rem;
+      border-radius: 1rem;
+      user-select: none;
+    }
+    .calendar-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    .calendar-header > div {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    select, input[type="date"], button {
+      padding: 0.3rem 0.5rem;
+      border-radius: 0.3rem;
+      border: 1px solid #ccc;
+      font-size: 1rem;
+    }
+    button.btn-light {
+      background: #eee;
+      border: 1px solid #ccc;
+      color: #333;
+      cursor: pointer;
+    }
+    button.btn-light:hover {
+      background: #ddd;
+    }
+    .calendar-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 0.5rem;
+    }
+    .calendar-day {
+      border: 1px solid #ccc;
+      min-height: 100px;
+      padding: 0.5rem;
+      border-radius: 0.5rem;
+      background: #f9f9f9;
+      font-size: 0.85rem;
+      cursor: text;
+      overflow-wrap: break-word;
+    }
+    .calendar-day.empty {
+      background: transparent;
+      border: none;
+      cursor: default;
+    }
+    .calendar-day[contenteditable]:focus {
+      outline: 2px solid #4caf50;
+      background: #e8f5e9;
+    }
+  </style>
+</head>
+<body>
+  <h1>{{ plant.name }} Dashboard</h1>
+
+  <!-- Plant info card -->
+  <div class="card info-card">
+    <h3>Strain Type: <span>{{ plant.strain_type or "Unknown" }}</span></h3>
+    <h3>Location: <span>{{ plant.location or "Unknown" }}</span></h3>
+    <h3>Stage: <span>{{ plant.stage or "Unknown" }}</span></h3>
+  </div>
+
+  <!-- Photo Card -->
+  <div class="card">
+    <h2>Live Photo</h2>
+
+    <!-- Form to take photo -->
+    <form method="POST" action="{{ url_for('capture', plant_id=plant.id) }}">
+      <input type="hidden" name="plant_id" value="{{ plant.id }}">
+      <button type="submit" class="btn btn-warning" onclick="this.disabled=true;this.innerText='Capturing...';this.form.submit();">📸 Take Picture</button>
+    </form>
+
+    <!-- Latest Photo -->
+    {% if latest_photo %}
+      <img
+        id="plant-photo"
+        class="plant-photo"
+        src="{{ url_for('static', filename='photos/' + latest_photo) }}?t={{ timestamp }}"
+        alt="Latest Plant Photo"
+      />
+    {% else %}
+      <p>No photo available yet.</p>
+    {% endif %}
+
+    <!-- Photo History -->
+    {% if photo_history %}
+      <h3>📸 Photo History</h3>
+      <div class="history" id="photo-history">
+        {% for photo in photo_history %}
+          <img
+            src="{{ url_for('static', filename='photos/' + photo) }}?t={{ timestamp }}"
+            alt="Past Photo"
+            onclick="document.getElementById('plant-photo').src=this.src"
+          />
+        {% endfor %}
+      </div>
+    {% endif %}
+  </div>
+  <a href="{{ url_for('home') }}" class="btn btn-secondary mb-3">⬅️ Return to Dashboard</a>
+
+  <!-- Calendar Card -->
+  <div class="card calendar">
+    <div class="calendar-header">
+      <div>
+        <label for="stage">Stage:</label>
+        <select id="stage">
+          <option value="seed">Seed</option>
+          <option value="veg">Vegetative</option>
+          <option value="flower">Flowering</option>
+        </select>
+        <label for="startDate">Start Date:</label>
+        <input type="date" id="startDate" />
+        <button onclick="generateSchedule()" class="btn btn-success">Generate Schedule</button>
+      </div>
+      <div>
+        <button onclick="prevMonth()" class="btn btn-light" aria-label="Previous month">&lt;</button>
+        <span id="calendarMonth" aria-live="polite" aria-atomic="true" style="min-width:130px; text-align:center;"></span>
+        <button onclick="nextMonth()" class="btn btn-light" aria-label="Next month">&gt;</button>
+      </div>
+    </div>
+    <div class="calendar-grid" id="calendarDays" aria-label="Feeding and watering schedule calendar"></div>
+  </div>
+
+<script>
+  const calendarDays = document.getElementById("calendarDays");
+  const calendarMonth = document.getElementById("calendarMonth");
+  const stageSelect = document.getElementById("stage");
+  const startDateInput = document.getElementById("startDate");
+
+  let currentDate = new Date();
+  let schedule = {};
+
+  const stageColors = {
+    "soak seeds": "#a0522d",
+    "plant in starter": "#a0522d",
+    "check moisture": "#a0522d",
+    "transplant to veg pot": "#a0522d",
+    "start 18/6 light cycle": "#ffeb3b",
+    "feed nutrients": "#ffeb3b",
+    "check height": "#ffeb3b",
+    "top plant": "#ffeb3b",
+    "switch to 12/12 lights": "#4caf50",
+    "add bloom nutrients": "#4caf50",
+    "trim lower leaves": "#4caf50",
+    "check trichomes": "#4caf50"
+  };
+
+  function formatDate(date) {
+    const y = date.getFullYear();
+    const m = String(date.getMonth() + 1).padStart(2, "0");
+    const d = String(date.getDate()).padStart(2, "0");
+    return `${y}-${m}-${d}`;
+  }
+
+  function generateSchedule() {
+    const startDateStr = startDateInput.value;
+    const stage = stageSelect.value;
+    if (!startDateStr || !stage) {
+      alert("Please select a start date and stage.");
+      return;
+    }
+
+    fetch(`/api/calendar/generate/{{ plant.id }}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ start_date: startDateStr, stage: stage })
+    })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          loadSchedule();
+          renderCalendar(currentDate.getFullYear(), currentDate.getMonth());
+        } else {
+          alert('Failed to generate schedule: ' + (data.error || 'Unknown error'));
+        }
+      })
+      .catch(error => alert('Error generating schedule: ' + error));
+  }
+
+  function saveSchedule(date, note) {
+    fetch(`/api/calendar/{{ plant.id }}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ date: date, action: note })
+    })
+      .then(response => response.json())
+      .then(data => {
+        if (!data.success) {
+          alert('Failed to save schedule: ' + (data.error || 'Unknown error'));
+        }
+      })
+      .catch(error => alert('Error saving schedule: ' + error));
+  }
+
+  function loadSchedule() {
+    fetch(`/api/calendar/{{ plant.id }}`)
+      .then(response => response.json())
+      .then(data => {
+        schedule = data;
+        renderCalendar(currentDate.getFullYear(), currentDate.getMonth());
+      })
+      .catch(error => console.error('Error loading schedule:', error));
+  }
+
+  function renderCalendar(year, month) {
+    currentDate = new Date(year, month);
+    calendarDays.innerHTML = "";
+
+    const firstDayOfWeek = new Date(year, month, 1).getDay();
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+    calendarMonth.textContent = currentDate.toLocaleString('default', { month: 'long', year: 'numeric' });
+
+    for (let i = 0; i < firstDayOfWeek; i++) {
+      const blank = document.createElement("div");
+      blank.className = "calendar-day empty";
+      blank.setAttribute("aria-hidden", "true");
+      calendarDays.appendChild(blank);
+    }
+
+    for (let day = 1; day <= daysInMonth; day++) {
+      const dayDiv = document.createElement("div");
+      dayDiv.className = "calendar-day";
+      dayDiv.contentEditable = true;
+
+      const date = new Date(year, month, day);
+      const dateStr = formatDate(date);
+      dayDiv.dataset.date = dateStr;
+
+      dayDiv.innerHTML = `<strong>${day}</strong><br>`;
+
+      if (schedule[dateStr]) {
+        dayDiv.innerHTML += schedule[dateStr].replace(/\n/g, "<br>");
+        dayDiv.style.backgroundColor = stageColors[schedule[dateStr].toLowerCase()] || "#f9f9f9";
+      }
+
+      let timeout;
+      dayDiv.addEventListener("input", () => {
+        clearTimeout(timeout);
+        timeout = setTimeout(() => {
+          const text = dayDiv.innerText || "";
+          const lines = text.split("\n");
+          if (lines.length > 1) {
+            lines.shift();
+            const content = lines.join("\n").trim();
+            if (content.length === 0) {
+              delete schedule[dateStr];
+              saveSchedule(dateStr, "");
+            } else {
+              schedule[dateStr] = content;
+              saveSchedule(dateStr, content);
+            }
+          } else {
+            delete schedule[dateStr];
+            saveSchedule(dateStr, "");
+          }
+          renderCalendar(year, month);
+        }, 500);
+      });
+
+      calendarDays.appendChild(dayDiv);
+    }
+  }
+
+  function prevMonth() {
+    currentDate.setMonth(currentDate.getMonth() - 1);
+    renderCalendar(currentDate.getFullYear(), currentDate.getMonth());
+  }
+
+  function nextMonth() {
+    currentDate.setMonth(currentDate.getMonth() + 1);
+    renderCalendar(currentDate.getFullYear(), currentDate.getMonth());
+  }
+
+  window.prevMonth = prevMonth;
+  window.nextMonth = nextMonth;
+  window.generateSchedule = generateSchedule;
+
+  document.addEventListener("DOMContentLoaded", () => {
+    loadSchedule();
+    renderCalendar(currentDate.getFullYear(), currentDate.getMonth());
+  });
+</script>
+</body>
+</html>
