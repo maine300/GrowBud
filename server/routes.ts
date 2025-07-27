@@ -12,7 +12,6 @@ import {
   insertFeedingScheduleSchema
 } from "@shared/schema";
 import * as XLSX from 'xlsx';
-import * as pdfParse from 'pdf-parse';
 
 // Configure multer for photo uploads
 const photoStorage = multer.diskStorage({
@@ -506,20 +505,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
               return row;
             });
         } else if (fileExtension === '.pdf') {
-          // Process PDF file
-          const pdfBuffer = fs.readFileSync(filePath);
-          const pdfData = await pdfParse(pdfBuffer);
-          
-          // Simple text parsing - extract lines that look like schedule data
-          const lines = pdfData.text.split('\n')
-            .filter(line => line.trim())
-            .map((line, index) => ({
-              week: Math.floor(index / 2) + 1,
-              task: line.trim(),
-              notes: ''
-            }));
-          
-          scheduleData = lines;
+          // PDF processing placeholder - user can enhance this
+          scheduleData = [{
+            week: 1,
+            task: "PDF uploaded - manual processing needed",
+            notes: "PDF file requires manual review"
+          }];
         }
 
         // Clean up the uploaded file
