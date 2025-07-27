@@ -93,11 +93,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/plants", async (req, res) => {
     try {
+      console.log("Received plant data:", req.body);
       const validatedData = insertPlantSchema.parse(req.body);
+      console.log("Validated plant data:", validatedData);
       const plant = await storage.createPlant(validatedData);
       res.status(201).json(plant);
     } catch (error) {
-      res.status(400).json({ error: "Invalid plant data" });
+      console.error("Plant creation error:", error);
+      res.status(400).json({ error: "Invalid plant data", details: error });
     }
   });
 

@@ -21,7 +21,6 @@ export default function AddPlantForm() {
       strainType: "",
       location: "",
       stage: "",
-      plantedDate: new Date(),
     },
   });
 
@@ -53,7 +52,14 @@ export default function AddPlantForm() {
   });
 
   const onSubmit = (data: InsertPlant) => {
-    addPlantMutation.mutate(data);
+    // Remove any undefined values and let the database set defaults
+    const cleanData = {
+      name: data.name,
+      strainType: data.strainType,
+      location: data.location,
+      stage: data.stage,
+    };
+    addPlantMutation.mutate(cleanData);
   };
 
   return (
