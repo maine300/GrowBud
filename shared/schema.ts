@@ -35,6 +35,18 @@ export const calendarEvents = pgTable("calendar_events", {
   date: text("date").notNull(), // YYYY-MM-DD format
   task: text("task").notNull(),
   completed: boolean("completed").notNull().default(false),
+  stage: text("stage").notNull().default("vegetative"), // seed, seedling, vegetative, flowering, harvest
+  potSize: text("pot_size"), // small, medium, large
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
+export const feedingSchedules = pgTable("feeding_schedules", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  name: text("name").notNull(),
+  stage: text("stage").notNull(), // seed, seedling, vegetative, flowering, harvest
+  potSize: text("pot_size").notNull(), // small, medium, large
+  scheduleData: jsonb("schedule_data").notNull(), // Array of {week: number, task: string, nutrients?: string}
+  uploadedBy: text("uploaded_by").default("user"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 
@@ -73,6 +85,11 @@ export const insertCalendarEventSchema = createInsertSchema(calendarEvents).omit
   createdAt: true,
 });
 
+export const insertFeedingScheduleSchema = createInsertSchema(feedingSchedules).omit({
+  id: true,
+  createdAt: true,
+});
+
 export const insertDeviceStateSchema = createInsertSchema(deviceStates).omit({
   id: true,
   lastToggled: true,
@@ -92,6 +109,8 @@ export type SensorData = typeof sensorData.$inferSelect;
 export type InsertSensorData = z.infer<typeof insertSensorDataSchema>;
 export type CalendarEvent = typeof calendarEvents.$inferSelect;
 export type InsertCalendarEvent = z.infer<typeof insertCalendarEventSchema>;
+export type FeedingSchedule = typeof feedingSchedules.$inferSelect;
+export type InsertFeedingSchedule = z.infer<typeof insertFeedingScheduleSchema>;
 export type DeviceState = typeof deviceStates.$inferSelect;
 export type InsertDeviceState = z.infer<typeof insertDeviceStateSchema>;
 export type Backup = typeof backups.$inferSelect;
