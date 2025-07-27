@@ -8,8 +8,11 @@ import {
   insertPlantSchema, 
   insertSensorDataSchema, 
   insertCalendarEventSchema,
-  insertBackupSchema 
+  insertBackupSchema,
+  insertFeedingScheduleSchema
 } from "@shared/schema";
+import * as XLSX from 'xlsx';
+import * as pdfParse from 'pdf-parse';
 
 // Configure multer for photo uploads
 const photoStorage = multer.diskStorage({
@@ -36,6 +39,42 @@ const upload = multer({
       cb(null, true);
     } else {
       cb(new Error('Only image files are allowed'), false);
+    }
+  }
+});
+
+// Configure multer for feeding schedule uploads
+const scheduleStorage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    const uploadDir = path.join(process.cwd(), 'uploads', 'schedules');
+    if (!fs.existsSync(uploadDir)) {
+      fs.mkdirSync(uploadDir, { recursive: true });
+    }
+    cb(null, uploadDir);
+  },
+  filename: (req, file, cb) => {
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    cb(null, `schedule-${uniqueSuffix}${path.extname(file.originalname)}`);
+  }
+});
+
+const uploadSchedule = multer({
+  storage: scheduleStorage,
+  limits: {
+    fileSize: 20 * 1024 * 1024, // 20MB
+  },
+  fileFilter: (req, file, cb) => {
+    const allowedTypes = [
+      'application/vnd.ms-excel',
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      'application/pdf',
+      'text/csv'
+    ];
+    
+    if (allowedTypes.includes(file.mimetype)) {
+      cb(null, true);
+    } else {
+      cb(new Error('Only Excel, PDF, or CSV files are allowed'), false);
     }
   }
 });
@@ -414,6 +453,109 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json({ success: deleted });
     } catch (error) {
       res.status(500).json({ error: "Failed to delete backup" });
+    }
+  });
+
+  // Feeding Schedule endpoints
+  app.get("/api/feeding-schedules", async (req, res) => {
+    try {
+      const schedules = await storage.getFeedingSchedules();
+      res.json(schedules);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to fetch feeding schedules" });
+    }
+  });
+
+  app.post("/api/feeding-schedules", uploadSchedule.single('schedule'), async (req, res) => {
+    try {
+      if (!req.file) {
+        return res.status(400).json({ error: "No file uploaded" });
+      }
+
+      const { name, stage, potSize } = req.body;
+      if (!name || !stage || !potSize) {
+        return res.status(400).json({ error: "Missing required fields" });
+      }
+
+      // Process the uploaded file based on type
+      let scheduleData: any[] = [];
+      const filePath = req.file.path;
+      const fileExtension = path.extname(req.file.originalname).toLowerCase();
+
+      try {
+        if (fileExtension === '.xlsx' || fileExtension === '.xls') {
+          // Process Excel file
+          const workbook = XLSX.readFile(filePath);
+          const sheetName = workbook.SheetNames[0];
+          const worksheet = workbook.Sheets[sheetName];
+          scheduleData = XLSX.utils.sheet_to_json(worksheet);
+        } else if (fileExtension === '.csv') {
+          // Process CSV file
+          const csvContent = fs.readFileSync(filePath, 'utf8');
+          const lines = csvContent.split('\n');
+          const headers = lines[0].split(',').map(h => h.trim());
+          
+          scheduleData = lines.slice(1)
+            .filter(line => line.trim())
+            .map(line => {
+              const values = line.split(',').map(v => v.trim());
+              const row: any = {};
+              headers.forEach((header, index) => {
+                row[header] = values[index] || '';
+              });
+              return row;
+            });
+        } else if (fileExtension === '.pdf') {
+          // Process PDF file
+          const pdfBuffer = fs.readFileSync(filePath);
+          const pdfData = await pdfParse(pdfBuffer);
+          
+          // Simple text parsing - extract lines that look like schedule data
+          const lines = pdfData.text.split('\n')
+            .filter(line => line.trim())
+            .map((line, index) => ({
+              week: Math.floor(index / 2) + 1,
+              task: line.trim(),
+              notes: ''
+            }));
+          
+          scheduleData = lines;
+        }
+
+        // Clean up the uploaded file
+        fs.unlinkSync(filePath);
+
+        // Create feeding schedule record
+        const feedingSchedule = await storage.createFeedingSchedule({
+          name,
+          stage,
+          potSize,
+          scheduleData,
+        });
+
+        res.status(201).json(feedingSchedule);
+      } catch (fileError) {
+        // Clean up file on error
+        if (fs.existsSync(filePath)) {
+          fs.unlinkSync(filePath);
+        }
+        throw fileError;
+      }
+    } catch (error) {
+      console.error("Feeding schedule upload error:", error);
+      res.status(400).json({ error: "Failed to process feeding schedule file" });
+    }
+  });
+
+  app.delete("/api/feeding-schedules/:id", async (req, res) => {
+    try {
+      const deleted = await storage.deleteFeedingSchedule(req.params.id);
+      if (!deleted) {
+        return res.status(404).json({ error: "Feeding schedule not found" });
+      }
+      res.json({ success: true });
+    } catch (error) {
+      res.status(500).json({ error: "Failed to delete feeding schedule" });
     }
   });
 
