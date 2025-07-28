@@ -48,6 +48,11 @@ I've updated your configuration to work with Render's infrastructure:
 - Added file copy command to both package.json and render.yaml
 - Ensures frontend assets are accessible in production
 
+### 5. Fixed Build Bundling Error
+- Fixed ESBuild configuration to exclude vite and drizzle-kit from server bundle
+- Created separate build:client and build:server scripts
+- Prevents "defineConfig is not a function" TypeError during deployment
+
 ### Files Updated:
 - ✅ `render.yaml` - Simplified with direct build and start commands
 - ✅ `deploy-render.sh` - Comprehensive build script (fallback)

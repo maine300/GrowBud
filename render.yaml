@@ -3,7 +3,7 @@ services:
     name: plant-monitoring-app
     env: node
     plan: free
-    buildCommand: npm ci --include=dev && npm run build && cp -r dist/public dist/server/
+    buildCommand: npm ci --include=dev && npm run build:client && npm run build:server
     startCommand: npm run db:push && npm start
     envVars:
       - key: NODE_ENV
