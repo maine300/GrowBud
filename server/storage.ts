@@ -41,6 +41,7 @@ export interface IStorage {
   getPhoto(id: string): Promise<Photo | undefined>;
   createPhoto(photo: InsertPhoto): Promise<Photo>;
   deletePhoto(id: string): Promise<boolean>;
+  deletePhotosByPlant(plantId: string): Promise<boolean>;
 
   // Sensor Data
   getLatestSensorData(): Promise<SensorData | undefined>;
@@ -67,6 +68,7 @@ export interface IStorage {
   createDeviceState(device: InsertDeviceState): Promise<DeviceState>;
   updateDeviceState(id: string, updates: Partial<InsertDeviceState>): Promise<DeviceState | undefined>;
   deleteDeviceState(id: string): Promise<boolean>;
+  deleteDeviceStatesByPlant(plantId: string): Promise<boolean>;
 
   // Backups
   getBackups(): Promise<Backup[]>;
@@ -144,6 +146,11 @@ export class DatabaseStorage implements IStorage {
 
   async deletePhoto(id: string): Promise<boolean> {
     const result = await db.delete(photos).where(eq(photos.id, id));
+    return result.rowCount > 0;
+  }
+
+  async deletePhotosByPlant(plantId: string): Promise<boolean> {
+    const result = await db.delete(photos).where(eq(photos.plantId, plantId));
     return result.rowCount > 0;
   }
 
@@ -263,6 +270,11 @@ export class DatabaseStorage implements IStorage {
 
   async deleteDeviceState(id: string): Promise<boolean> {
     const result = await db.delete(deviceStates).where(eq(deviceStates.id, id));
+    return result.rowCount > 0;
+  }
+
+  async deleteDeviceStatesByPlant(plantId: string): Promise<boolean> {
+    const result = await db.delete(deviceStates).where(eq(deviceStates.plantId, plantId));
     return result.rowCount > 0;
   }
 

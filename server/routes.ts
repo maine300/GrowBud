@@ -200,16 +200,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.delete("/api/plants/:id", async (req, res) => {
     try {
+      // First delete all related records
+      await storage.deleteCalendarEventsByPlant(req.params.id);
+      await storage.deleteDeviceStatesByPlant(req.params.id);
+      await storage.deletePhotosByPlant(req.params.id);
+      
+      // Then delete the plant
       const deleted = await storage.deletePlant(req.params.id);
       if (!deleted) {
         return res.status(404).json({ error: "Plant not found" });
       }
       
-      // Also delete related calendar events
-      await storage.deleteCalendarEventsByPlant(req.params.id);
-      
       res.json({ success: true });
     } catch (error) {
+      console.error("Plant deletion error:", error);
       res.status(500).json({ error: "Failed to delete plant" });
     }
   });
