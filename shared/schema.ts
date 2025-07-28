@@ -64,6 +64,8 @@ export const deviceStates = pgTable("device_states", {
   autoMode: boolean("auto_mode").notNull().default(false), // Smart automation based on sensors
   wattage: integer("wattage"), // For lights - used for distance calculations
   distanceFromPlant: integer("distance_from_plant"), // cm, for lights
+  isDimmable: boolean("is_dimmable").default(false), // Whether light supports dimming
+  currentIntensity: integer("current_intensity").default(100), // Current dimmer setting (10-100%)
   lastToggled: timestamp("last_toggled").notNull().defaultNow(),
 });
 

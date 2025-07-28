@@ -10,7 +10,7 @@ import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
 import { Power, Plus, Settings, Users, Zap, Lightbulb, Info } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { getDeviceAutomation, calculateLightDistance } from "@/lib/device-automation";
+import { getDeviceAutomation, calculateLightDistance, calculateRecommendedIntensity } from "@/lib/device-automation";
 import type { Plant } from "@shared/schema";
 
 interface DeviceControlsPlantProps {
@@ -28,6 +28,8 @@ interface Device {
   autoMode: boolean;
   wattage: number | null;
   distanceFromPlant: number | null;
+  isDimmable?: boolean;
+  currentIntensity?: number;
   lastToggled: Date;
 }
 
@@ -131,10 +133,18 @@ export default function DeviceControlsPlant({ plantId, plant }: DeviceControlsPl
   });
 
   const updateDeviceSettingsMutation = useMutation({
-    mutationFn: async ({ deviceId, wattage, distanceFromPlant }: { deviceId: string; wattage?: number; distanceFromPlant?: number }) => {
+    mutationFn: async ({ deviceId, wattage, distanceFromPlant, isDimmable, currentIntensity }: { 
+      deviceId: string; 
+      wattage?: number; 
+      distanceFromPlant?: number;
+      isDimmable?: boolean;
+      currentIntensity?: number;
+    }) => {
       const updateData: any = {};
       if (wattage !== undefined) updateData.wattage = wattage;
       if (distanceFromPlant !== undefined) updateData.distanceFromPlant = distanceFromPlant;
+      if (isDimmable !== undefined) updateData.isDimmable = isDimmable;
+      if (currentIntensity !== undefined) updateData.currentIntensity = currentIntensity;
       
       const response = await fetch(`/api/devices/${deviceId}`, {
         method: "PUT",
@@ -354,6 +364,9 @@ export default function DeviceControlsPlant({ plantId, plant }: DeviceControlsPl
               const distanceRec = device.deviceType === "light" && device.wattage 
                 ? calculateLightDistance(device.wattage, plant.stage)
                 : null;
+              const intensityRec = device.deviceType === "light" && device.wattage && device.distanceFromPlant
+                ? calculateRecommendedIntensity(device.wattage, device.distanceFromPlant, plant.stage, device.isDimmable)
+                : null;
               
               return (
                 <div key={device.id} className="bg-gray-700 rounded-lg p-4">
@@ -417,6 +430,39 @@ export default function DeviceControlsPlant({ plantId, plant }: DeviceControlsPl
                                   className="bg-gray-700 border-gray-600 text-white"
                                 />
                               </div>
+                              
+                              <div className="flex items-center space-x-2">
+                                <Switch
+                                  checked={device.isDimmable || false}
+                                  onCheckedChange={(isDimmable) => {
+                                    updateDeviceSettingsMutation.mutate({ deviceId: device.id, isDimmable });
+                                  }}
+                                  className="data-[state=checked]:bg-blue-600"
+                                />
+                                <Label className="text-sm text-gray-400">Dimmable Light</Label>
+                              </div>
+                              
+                              {device.isDimmable && (
+                                <div>
+                                  <Label className="text-sm text-gray-400">Current Intensity (%)</Label>
+                                  <Input
+                                    type="number"
+                                    min="10"
+                                    max="100"
+                                    defaultValue={device.currentIntensity || intensityRec?.intensity || 100}
+                                    onBlur={(e) => {
+                                      const intensity = parseInt(e.target.value);
+                                      if (intensity && intensity !== device.currentIntensity) {
+                                        updateDeviceSettingsMutation.mutate({ deviceId: device.id, currentIntensity: intensity });
+                                      }
+                                    }}
+                                    className="bg-gray-700 border-gray-600 text-white"
+                                  />
+                                  <p className="text-xs text-gray-500 mt-1">
+                                    Range: 10-100%. {intensityRec && `Recommended: ${intensityRec.intensity}%`}
+                                  </p>
+                                </div>
+                              )}
                               {distanceRec && (
                                 <div className="bg-blue-900/20 border border-blue-700 rounded p-3">
                                   <div className="flex items-center gap-2 text-blue-400 text-sm">
@@ -424,6 +470,25 @@ export default function DeviceControlsPlant({ plantId, plant }: DeviceControlsPl
                                     Recommended: {distanceRec.distance}cm
                                   </div>
                                   <p className="text-xs text-gray-400 mt-1">{distanceRec.reason}</p>
+                                </div>
+                              )}
+                              
+                              {/* Show intensity recommendation if both wattage and distance are set */}
+                              {device.wattage && device.distanceFromPlant && (
+                                <div className="bg-green-900/20 border border-green-700 rounded p-3">
+                                  <div className="flex items-center justify-between text-green-400 text-sm mb-1">
+                                    <div className="flex items-center gap-2">
+                                      <Zap className="w-4 h-4" />
+                                      Recommended Intensity
+                                    </div>
+                                    <Badge variant="outline" className="text-green-400 border-green-400">
+                                      {intensityRec?.intensity}%
+                                    </Badge>
+                                  </div>
+                                  <p className="text-xs text-gray-400 mb-1">{intensityRec?.reason}</p>
+                                  <p className="text-xs text-green-300">
+                                    PPFD: {intensityRec?.ppfd} μmol/m²/s
+                                  </p>
                                 </div>
                               )}
                             </div>
@@ -471,6 +536,20 @@ export default function DeviceControlsPlant({ plantId, plant }: DeviceControlsPl
                     <p className="text-xs text-gray-300">{automation.reason}</p>
                     {automation.recommendation && (
                       <p className="text-xs text-blue-400 mt-1">{automation.recommendation}</p>
+                    )}
+                    {/* Show intensity recommendation for lights */}
+                    {device.deviceType === "light" && intensityRec && (
+                      <div className="mt-2 pt-2 border-t border-gray-600">
+                        <div className="flex items-center justify-between text-xs">
+                          <span className="text-gray-400">Recommended Intensity:</span>
+                          <Badge variant="outline" className="text-green-400 border-green-400 text-xs">
+                            {intensityRec.intensity}%
+                          </Badge>
+                        </div>
+                        <p className="text-xs text-green-400 mt-1">
+                          PPFD: {intensityRec.ppfd} μmol/m²/s
+                        </p>
+                      </div>
                     )}
                   </div>
                 </div>

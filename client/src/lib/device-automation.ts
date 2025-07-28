@@ -46,6 +46,60 @@ export function calculateLightDistance(wattage: number, stage: string): { distan
 }
 
 /**
+ * Calculate recommended intensity for dimmable lights
+ */
+export function calculateRecommendedIntensity(
+  wattage: number, 
+  distance: number, 
+  stage: string,
+  isDimmable: boolean = true
+): { intensity: number; reason: string; ppfd: number } {
+  if (!isDimmable) {
+    return {
+      intensity: 100,
+      reason: "Non-dimmable light at full power",
+      ppfd: 0
+    };
+  }
+
+  // Target PPFD ranges by stage (μmol/m²/s)
+  const targetPPFD = {
+    seed: { min: 100, max: 300, optimal: 200 },
+    vegetative: { min: 300, max: 600, optimal: 450 },
+    flowering: { min: 600, max: 1000, optimal: 800 }
+  };
+
+  const stageKey = stage.toLowerCase() as keyof typeof targetPPFD;
+  const targets = targetPPFD[stageKey] || targetPPFD.vegetative;
+
+  // Calculate PPFD based on inverse square law
+  // Assuming high-quality LED produces ~2.5 μmol/J efficiency
+  const efficiency = 2.5; // μmol/J for quality LEDs
+  const maxPPFD = (wattage * efficiency * 1000000) / (distance * distance * Math.PI);
+  
+  // Calculate required intensity percentage
+  let requiredIntensity = (targets.optimal / maxPPFD) * 100;
+  
+  // Clamp between 10% and 100%
+  requiredIntensity = Math.max(10, Math.min(100, requiredIntensity));
+  
+  const actualPPFD = (maxPPFD * requiredIntensity) / 100;
+  
+  let reason = `Target ${targets.optimal} PPFD for ${stage} stage`;
+  if (actualPPFD < targets.min) {
+    reason += ` (low light - consider moving closer)`;
+  } else if (actualPPFD > targets.max) {
+    reason += ` (high light - consider moving further)`;
+  }
+
+  return {
+    intensity: Math.round(requiredIntensity),
+    reason,
+    ppfd: Math.round(actualPPFD)
+  };
+}
+
+/**
  * Get light schedule based on plant stage
  */
 export function getLightSchedule(stage: string): { hoursOn: number; reason: string } {
