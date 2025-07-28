@@ -3,7 +3,7 @@ services:
     name: plant-monitoring-app
     env: node
     plan: free
-    buildCommand: npm install && npm run build
+    buildCommand: ./deploy-render.sh
     startCommand: npm start
     envVars:
       - key: NODE_ENV
