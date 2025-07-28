@@ -13,16 +13,26 @@ Preferred communication style: Simple, everyday language.
 ## Recent Changes (Latest Session)
 
 ### Completed Features
-- **Editable Calendar Tasks**: Users can now click on any calendar task to edit the text inline. Click to edit, Enter to save, Escape to cancel.
-- **Complete Cannabis Growing Schedule**: Added comprehensive 145-day seed-to-harvest schedule with professional PPM levels, watering schedules, and advanced techniques (LST, SCROG, topping, lollipopping).
-- **Feeding Schedule Upload on Plant Pages**: Added feeding schedule upload feature directly to individual plant detail pages for better accessibility.
-- **Professional Growing Techniques**: Schedule includes specific PPM levels (200-1200), timing for techniques, trichome monitoring, and proper curing processes.
+- **Fixed Delete Plant Functionality**: Plant deletion now properly removes related records (photos, calendar events) before deleting the plant itself
+- **Customizable Dashboard**: Full dashboard customization system with multiple layout options and widget sizing
+- **Settings Page**: Comprehensive settings interface accessible from dashboard header (/settings route)
+- **Widget Size Controls**: Individual sizing (Small/Medium/Large) for Environment, Plants, Calendar, Controls, and Analytics widgets
+- **Layout Options**: Grid, Masonry, and Compact layout modes with real-time preview
+- **Display Controls**: Compact mode, grid lines toggle, theme selection, and adjustable refresh intervals (1-30 seconds)
+- **Editable Calendar Tasks**: Users can click on any calendar task to edit the text inline. Click to edit, Enter to save, Escape to cancel
+- **Complete Cannabis Growing Schedule**: Added comprehensive 145-day seed-to-harvest schedule with professional PPM levels, watering schedules, and advanced techniques (LST, SCROG, topping, lollipopping)
+- **Feeding Schedule Upload on Plant Pages**: Added feeding schedule upload feature directly to individual plant detail pages for better accessibility
+- **Professional Growing Techniques**: Schedule includes specific PPM levels (200-1200), timing for techniques, trichome monitoring, and proper curing processes
 
 ### Technical Implementation
+- Fixed DatabaseStorage.deletePlant() to handle foreign key constraints properly
+- Created useDashboardSettings hook for persistent settings management via localStorage
+- Added Settings page with comprehensive dashboard customization controls
 - Enhanced calendar event generation endpoint with complete cannabis lifecycle
 - Added EditableTaskItem component with inline editing capabilities
 - Integrated feeding schedule upload dialog into plant detail sidebar
 - Complete schedule option generates all stages from seed to harvest (145 days total)
+- Implemented dynamic widget sizing and layout system with CSS class generation
 
 Date: January 27, 2025
 

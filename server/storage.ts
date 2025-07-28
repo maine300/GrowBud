@@ -108,8 +108,18 @@ export class DatabaseStorage implements IStorage {
   }
 
   async deletePlant(id: string): Promise<boolean> {
-    const result = await db.delete(plants).where(eq(plants.id, id));
-    return result.rowCount > 0;
+    try {
+      // First delete related records
+      await db.delete(photos).where(eq(photos.plantId, id));
+      await db.delete(calendarEvents).where(eq(calendarEvents.plantId, id));
+      
+      // Then delete the plant
+      const result = await db.delete(plants).where(eq(plants.id, id));
+      return result.rowCount > 0;
+    } catch (error) {
+      console.error("Error deleting plant:", error);
+      return false;
+    }
   }
 
   // Photos

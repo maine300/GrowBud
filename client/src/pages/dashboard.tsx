@@ -10,16 +10,19 @@ import CareCalendar from "@/components/care-calendar";
 import AnalyticsPanel from "@/components/analytics-panel";
 import SystemStatus from "@/components/system-status";
 import { Button } from "@/components/ui/button";
+import { useDashboardSettings } from "@/hooks/use-dashboard-settings";
 import type { Plant, SensorData, DeviceState } from "@shared/schema";
 
 export default function Dashboard() {
+  const { settings, getWidgetClassName, getLayoutClassName } = useDashboardSettings();
+  
   const { data: plants = [] } = useQuery<Plant[]>({
     queryKey: ["/api/plants"],
   });
 
   const { data: sensorData } = useQuery<SensorData>({
     queryKey: ["/api/sensor-data"],
-    refetchInterval: 5000,
+    refetchInterval: settings.refreshInterval * 1000,
   });
 
   const { data: devices = [] } = useQuery<DeviceState[]>({
@@ -48,9 +51,11 @@ export default function Dashboard() {
               <Button size="sm" variant="secondary">
                 <Bell className="w-4 h-4" />
               </Button>
-              <Button size="sm" variant="secondary">
-                <Settings className="w-4 h-4" />
-              </Button>
+              <Link href="/settings">
+                <Button size="sm" variant="secondary">
+                  <Settings className="w-4 h-4" />
+                </Button>
+              </Link>
             </div>
           </div>
         </div>
@@ -63,56 +68,58 @@ export default function Dashboard() {
           <p className="text-gray-400">Monitor your plants and growing environment</p>
         </div>
 
-        {/* Environment Monitoring Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          <EnvironmentCard
-            title="Temperature"
-            value={sensorData?.temperature || 0}
-            unit="°C"
-            status="Optimal range"
-            icon="temperature"
-            iconColor="bg-red-600"
-          />
-          <EnvironmentCard
-            title="Humidity"
-            value={sensorData?.humidity || 0}
-            unit="%"
-            status="Good levels"
-            icon="humidity"
-            iconColor="bg-blue-600"
-          />
-          <EnvironmentCard
-            title="Soil Moisture"
-            value={sensorData?.soilMoisture || 0}
-            unit="units"
-            status={sensorData?.soilMoisture && sensorData.soilMoisture < 300 ? "Needs watering" : "Good levels"}
-            icon="soil"
-            iconColor="bg-amber-600"
-          />
-        </div>
+        {/* Customizable Dashboard Grid */}
+        <div className={getLayoutClassName()}>
+          {/* Environment Monitoring */}
+          <div className={`${getWidgetClassName("environment")} ${settings.layout === "compact" ? "col-span-3" : "md:col-span-3"}`}>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 h-full">
+              <EnvironmentCard
+                title="Temperature"
+                value={sensorData?.temperature || 0}
+                unit="°C"
+                status="Optimal range"
+                icon="temperature"
+                iconColor="bg-red-600"
+              />
+              <EnvironmentCard
+                title="Humidity"
+                value={sensorData?.humidity || 0}
+                unit="%"
+                status="Good levels"
+                icon="humidity"
+                iconColor="bg-blue-600"
+              />
+              <EnvironmentCard
+                title="Soil Moisture"
+                value={sensorData?.soilMoisture || 0}
+                unit="units"
+                status={sensorData?.soilMoisture && sensorData.soilMoisture < 300 ? "Needs watering" : "Good levels"}
+                icon="soil"
+                iconColor="bg-amber-600"
+              />
+            </div>
+          </div>
 
-        {/* Control Panel and Camera Section */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-          <ControlPanel devices={devices} />
-          <CameraSection />
-        </div>
-
-        {/* Plant Management Section */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
-          <AddPlantForm />
-          <div className="lg:col-span-2">
+          {/* Plants Grid */}
+          <div className={getWidgetClassName("plants")}>
             <PlantsGrid plants={plants} />
           </div>
-        </div>
 
-        {/* Care Calendar and Analytics */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-          <CareCalendar />
-          <AnalyticsPanel plants={plants} />
-        </div>
+          {/* Control Panel */}
+          <div className={getWidgetClassName("controls")}>
+            <ControlPanel devices={devices} />
+          </div>
 
-        {/* System Status Footer */}
-        <SystemStatus />
+          {/* Care Calendar */}
+          <div className={getWidgetClassName("calendar")}>
+            <CareCalendar />
+          </div>
+
+          {/* Analytics Panel */}
+          <div className={getWidgetClassName("analytics")}>
+            <AnalyticsPanel plants={plants} />
+          </div>
+        </div>
       </div>
     </div>
   );
