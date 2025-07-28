@@ -10,6 +10,7 @@ export interface DashboardSettings {
     controls: "small" | "medium" | "large";
     analytics: "small" | "medium" | "large";
   };
+  widgetOrder: string[]; // Array of widget names in display order
   theme: "dark" | "light" | "auto";
   compactMode: boolean;
   showGridLines: boolean;
@@ -25,6 +26,7 @@ const DEFAULT_SETTINGS: DashboardSettings = {
     controls: "small",
     analytics: "medium",
   },
+  widgetOrder: ["environment", "plants", "controls", "calendar", "analytics"],
   theme: "dark",
   compactMode: false,
   showGridLines: false,
@@ -35,7 +37,15 @@ export function useDashboardSettings() {
   const [settings, setSettings] = useState<DashboardSettings>(() => {
     try {
       const saved = localStorage.getItem("dashboard-settings");
-      return saved ? JSON.parse(saved) : DEFAULT_SETTINGS;
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        // Ensure widgetOrder exists and has default value
+        if (!parsed.widgetOrder) {
+          parsed.widgetOrder = DEFAULT_SETTINGS.widgetOrder;
+        }
+        return parsed;
+      }
+      return DEFAULT_SETTINGS;
     } catch {
       return DEFAULT_SETTINGS;
     }
@@ -69,18 +79,18 @@ export function useDashboardSettings() {
     const size = settings.widgetSizes[widget];
     const isCompact = settings.compactMode;
     
-    let className = "";
+    let className = "bg-gray-800 rounded-lg p-6 ";
     
-    // Size classes
+    // Size classes - fixed heights to prevent overflow
     switch (size) {
       case "small":
-        className += isCompact ? "h-32" : "h-40";
-        break;
-      case "medium":
         className += isCompact ? "h-48" : "h-56";
         break;
+      case "medium":
+        className += isCompact ? "h-64" : "h-72";
+        break;
       case "large":
-        className += isCompact ? "h-64" : "h-80";
+        className += isCompact ? "h-80" : "h-96";
         break;
     }
     
@@ -90,11 +100,11 @@ export function useDashboardSettings() {
     } else if (settings.layout === "masonry") {
       className += size === "large" ? " col-span-2" : " col-span-1";
     } else {
-      // Grid layout
+      // Grid layout - proper responsive columns
       if (widget === "plants") {
-        className += " md:col-span-2 lg:col-span-3";
+        className += " col-span-1 md:col-span-2";
       } else if (widget === "environment") {
-        className += " md:col-span-3";
+        className += " col-span-1 md:col-span-2 lg:col-span-3";
       } else {
         className += " col-span-1";
       }
@@ -102,20 +112,25 @@ export function useDashboardSettings() {
     
     // Grid lines
     if (settings.showGridLines) {
-      className += " border border-gray-600";
+      className += " border-2 border-gray-600";
     }
+    
+    // Ensure overflow is handled
+    className += " overflow-hidden";
     
     return className;
   };
 
   const getLayoutClassName = () => {
+    const baseClass = "grid gap-6 min-h-0 auto-rows-min ";
+    
     switch (settings.layout) {
       case "compact":
-        return "grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4";
+        return baseClass + "grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4";
       case "masonry":
-        return "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6";
+        return baseClass + "grid-cols-1 md:grid-cols-2 lg:grid-cols-3";
       default:
-        return "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6";
+        return baseClass + "grid-cols-1 md:grid-cols-2 lg:grid-cols-3";
     }
   };
 

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Link } from "wouter";
-import { ArrowLeft, Monitor, Palette, Layout, Save } from "lucide-react";
+import { ArrowLeft, Monitor, Palette, Layout, Save, GripVertical, ChevronUp, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -19,6 +19,7 @@ interface DashboardSettings {
     controls: "small" | "medium" | "large";
     analytics: "small" | "medium" | "large";
   };
+  widgetOrder: string[];
   theme: "dark" | "light" | "auto";
   compactMode: boolean;
   showGridLines: boolean;
@@ -34,6 +35,7 @@ const DEFAULT_SETTINGS: DashboardSettings = {
     controls: "small",
     analytics: "medium",
   },
+  widgetOrder: ["environment", "plants", "controls", "calendar", "analytics"],
   theme: "dark",
   compactMode: false,
   showGridLines: false,
@@ -87,6 +89,20 @@ export default function Settings() {
     }));
   };
 
+  const moveWidget = (widgetIndex: number, direction: "up" | "down") => {
+    const newOrder = [...settings.widgetOrder];
+    const targetIndex = direction === "up" ? widgetIndex - 1 : widgetIndex + 1;
+    
+    if (targetIndex >= 0 && targetIndex < newOrder.length) {
+      [newOrder[widgetIndex], newOrder[targetIndex]] = [newOrder[targetIndex], newOrder[widgetIndex]];
+      setSettings(prev => ({ ...prev, widgetOrder: newOrder }));
+    }
+  };
+
+  const getWidgetDisplayName = (widget: string) => {
+    return widget.charAt(0).toUpperCase() + widget.slice(1).replace(/([A-Z])/g, ' $1');
+  };
+
   return (
     <div className="min-h-screen bg-gray-900 text-white">
       {/* Header */}
@@ -123,7 +139,7 @@ export default function Settings() {
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Layout Settings */}
           <Card className="bg-gray-800 border-gray-700">
             <CardHeader>
@@ -213,6 +229,47 @@ export default function Settings() {
             </CardContent>
           </Card>
 
+          {/* Widget Positioning */}
+          <Card className="bg-gray-800 border-gray-700">
+            <CardHeader>
+              <CardTitle className="flex items-center">
+                <Layout className="w-5 h-5 mr-2" />
+                Widget Position & Order
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {settings.widgetOrder?.map((widget, index) => (
+                <div key={widget} className="flex items-center justify-between p-3 bg-gray-700 rounded-lg">
+                  <div className="flex items-center space-x-3">
+                    <GripVertical className="w-4 h-4 text-gray-400" />
+                    <span className="text-white font-medium">{getWidgetDisplayName(widget)}</span>
+                    <span className="text-xs text-gray-400">#{index + 1}</span>
+                  </div>
+                  <div className="flex items-center space-x-1">
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={() => moveWidget(index, "up")}
+                      disabled={index === 0}
+                      className="h-8 w-8 p-0"
+                    >
+                      <ChevronUp className="w-4 h-4" />
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={() => moveWidget(index, "down")}
+                      disabled={index === settings.widgetOrder.length - 1}
+                      className="h-8 w-8 p-0"
+                    >
+                      <ChevronDown className="w-4 h-4" />
+                    </Button>
+                  </div>
+                </div>
+              ))}
+            </CardContent>
+          </Card>
+
           {/* Widget Sizes */}
           <Card className="bg-gray-800 border-gray-700">
             <CardHeader>
@@ -224,7 +281,7 @@ export default function Settings() {
             <CardContent className="space-y-4">
               {Object.entries(settings.widgetSizes).map(([widget, size]) => (
                 <div key={widget} className="space-y-2">
-                  <Label className="capitalize">{widget.replace(/([A-Z])/g, ' $1')}</Label>
+                  <Label className="capitalize">{getWidgetDisplayName(widget)}</Label>
                   <Select 
                     value={size} 
                     onValueChange={(value: "small" | "medium" | "large") => 
@@ -246,7 +303,7 @@ export default function Settings() {
           </Card>
 
           {/* Preview Card */}
-          <Card className="bg-gray-800 border-gray-700 lg:col-span-2">
+          <Card className="bg-gray-800 border-gray-700 lg:col-span-3">
             <CardHeader>
               <CardTitle className="flex items-center">
                 <Palette className="w-5 h-5 mr-2" />
@@ -259,20 +316,23 @@ export default function Settings() {
                   settings.layout === 'compact' ? 'grid-cols-4' : 
                   settings.layout === 'masonry' ? 'grid-cols-3' : 'grid-cols-2'
                 }`}>
-                  {Object.entries(settings.widgetSizes).map(([widget, size]) => (
-                    <div
-                      key={widget}
-                      className={`bg-gray-700 rounded p-3 ${
-                        size === 'small' ? 'h-16' : 
-                        size === 'medium' ? 'h-24' : 'h-32'
-                      } ${settings.compactMode ? 'p-2' : 'p-3'}`}
-                    >
-                      <div className={`text-xs text-gray-400 ${settings.compactMode ? 'text-xs' : 'text-sm'}`}>
-                        {widget.charAt(0).toUpperCase() + widget.slice(1)}
+                  {settings.widgetOrder?.map((widget) => {
+                    const size = settings.widgetSizes[widget as keyof typeof settings.widgetSizes];
+                    return (
+                      <div
+                        key={widget}
+                        className={`bg-gray-700 rounded p-3 ${
+                          size === 'small' ? 'h-16' : 
+                          size === 'medium' ? 'h-24' : 'h-32'
+                        } ${settings.compactMode ? 'p-2' : 'p-3'}`}
+                      >
+                        <div className={`text-xs text-gray-400 ${settings.compactMode ? 'text-xs' : 'text-sm'}`}>
+                          {getWidgetDisplayName(widget)}
+                        </div>
+                        <div className="text-gray-300 text-xs mt-1">{size}</div>
                       </div>
-                      <div className="text-gray-300 text-xs mt-1">{size}</div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </div>
             </CardContent>

@@ -61,7 +61,7 @@ export default function Dashboard() {
         </div>
       </nav>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 pb-20">
         {/* Dashboard Header */}
         <div className="mb-8">
           <h2 className="text-3xl font-bold text-white mb-2">Dashboard Overview</h2>
@@ -70,55 +70,80 @@ export default function Dashboard() {
 
         {/* Customizable Dashboard Grid */}
         <div className={getLayoutClassName()}>
-          {/* Environment Monitoring */}
-          <div className={`${getWidgetClassName("environment")} ${settings.layout === "compact" ? "col-span-3" : "md:col-span-3"}`}>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 h-full">
-              <EnvironmentCard
-                title="Temperature"
-                value={sensorData?.temperature || 0}
-                unit="°C"
-                status="Optimal range"
-                icon="temperature"
-                iconColor="bg-red-600"
-              />
-              <EnvironmentCard
-                title="Humidity"
-                value={sensorData?.humidity || 0}
-                unit="%"
-                status="Good levels"
-                icon="humidity"
-                iconColor="bg-blue-600"
-              />
-              <EnvironmentCard
-                title="Soil Moisture"
-                value={sensorData?.soilMoisture || 0}
-                unit="units"
-                status={sensorData?.soilMoisture && sensorData.soilMoisture < 300 ? "Needs watering" : "Good levels"}
-                icon="soil"
-                iconColor="bg-amber-600"
-              />
-            </div>
-          </div>
-
-          {/* Plants Grid */}
-          <div className={getWidgetClassName("plants")}>
-            <PlantsGrid plants={plants} />
-          </div>
-
-          {/* Control Panel */}
-          <div className={getWidgetClassName("controls")}>
-            <ControlPanel devices={devices} />
-          </div>
-
-          {/* Care Calendar */}
-          <div className={getWidgetClassName("calendar")}>
-            <CareCalendar />
-          </div>
-
-          {/* Analytics Panel */}
-          <div className={getWidgetClassName("analytics")}>
-            <AnalyticsPanel plants={plants} />
-          </div>
+          {settings.widgetOrder?.map((widgetName) => {
+            switch (widgetName) {
+              case "environment":
+                return (
+                  <div key="environment" className={getWidgetClassName("environment")}>
+                    <h3 className="text-xl font-bold text-white mb-4">Environment</h3>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 h-full">
+                      <EnvironmentCard
+                        title="Temperature"
+                        value={sensorData?.temperature || 0}
+                        unit="°C"
+                        status="Optimal range"
+                        icon="temperature"
+                        iconColor="bg-red-600"
+                      />
+                      <EnvironmentCard
+                        title="Humidity"
+                        value={sensorData?.humidity || 0}
+                        unit="%"
+                        status="Good levels"
+                        icon="humidity"
+                        iconColor="bg-blue-600"
+                      />
+                      <EnvironmentCard
+                        title="Soil Moisture"
+                        value={sensorData?.soilMoisture || 0}
+                        unit="units"
+                        status={sensorData?.soilMoisture && sensorData.soilMoisture < 300 ? "Needs watering" : "Good levels"}
+                        icon="soil"
+                        iconColor="bg-amber-600"
+                      />
+                    </div>
+                  </div>
+                );
+              case "plants":
+                return (
+                  <div key="plants" className={getWidgetClassName("plants")}>
+                    <h3 className="text-xl font-bold text-white mb-4">Plants</h3>
+                    <div className="overflow-y-auto h-full">
+                      <PlantsGrid plants={plants} />
+                    </div>
+                  </div>
+                );
+              case "controls":
+                return (
+                  <div key="controls" className={getWidgetClassName("controls")}>
+                    <h3 className="text-xl font-bold text-white mb-4">Controls</h3>
+                    <div className="overflow-y-auto h-full">
+                      <ControlPanel devices={devices} />
+                    </div>
+                  </div>
+                );
+              case "calendar":
+                return (
+                  <div key="calendar" className={getWidgetClassName("calendar")}>
+                    <h3 className="text-xl font-bold text-white mb-4">Calendar</h3>
+                    <div className="overflow-y-auto h-full">
+                      <CareCalendar />
+                    </div>
+                  </div>
+                );
+              case "analytics":
+                return (
+                  <div key="analytics" className={getWidgetClassName("analytics")}>
+                    <h3 className="text-xl font-bold text-white mb-4">Analytics</h3>
+                    <div className="overflow-y-auto h-full">
+                      <AnalyticsPanel plants={plants} />
+                    </div>
+                  </div>
+                );
+              default:
+                return null;
+            }
+          })}
         </div>
       </div>
     </div>
