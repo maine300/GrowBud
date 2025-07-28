@@ -374,10 +374,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       const events = [];
       const baseDate = new Date(startDate);
+      
+      // Calculate the minimum offset from the filtered schedule to normalize dates
+      const minOffset = filteredSchedule.length > 0 ? Math.min(...filteredSchedule.map(item => item.offset)) : 0;
 
       for (const preset of filteredSchedule) {
         const eventDate = new Date(baseDate);
-        eventDate.setDate(eventDate.getDate() + preset.offset);
+        // Normalize the offset so the first event starts on the selected date
+        const normalizedOffset = preset.offset - minOffset;
+        eventDate.setDate(eventDate.getDate() + normalizedOffset);
         
         const event = await storage.createCalendarEvent({
           plantId,
