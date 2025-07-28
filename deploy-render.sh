@@ -19,11 +19,4 @@ else
     exit 1
 fi
 
-# Run database migrations after build (for production deployment)
-echo "🗄️ Setting up database..."
-if [ ! -z "$DATABASE_URL" ]; then
-    echo "Running database migrations..."
-    npm run db:push || echo "⚠️ Database migration failed, but continuing..."
-fi
-
 echo "🚀 Deployment preparation complete!"

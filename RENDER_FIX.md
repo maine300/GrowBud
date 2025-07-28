@@ -14,6 +14,11 @@ Error: connect ECONNREFUSED 10.230.175.112:443
 ErrorEvent WebSocket connection failed
 ```
 
+### 3. Database Schema Error (FIXED ✅)
+```bash
+error: relation "device_states" does not exist
+```
+
 ## ✅ Complete Fix Applied
 
 I've updated your configuration to work with Render's infrastructure:
@@ -28,9 +33,15 @@ I've updated your configuration to work with Render's infrastructure:
 - Updated `server/db.ts` to work with Render's database
 - Added proper SSL configuration for production
 
+### 3. Fixed Database Schema Setup
+- Created `start-render.sh` script to run migrations before app starts
+- Added database migration to startup process
+- Ensures all required tables exist before app runs
+
 ### Files Updated:
-- ✅ `render.yaml` - Fixed build command
+- ✅ `render.yaml` - Fixed build and start commands
 - ✅ `deploy-render.sh` - Comprehensive build script  
+- ✅ `start-render.sh` - Database migration and startup script
 - ✅ `server/db.ts` - Standard PostgreSQL configuration
 - ✅ `package.json` - Added pg dependency
 

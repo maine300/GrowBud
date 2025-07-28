@@ -4,7 +4,7 @@ services:
     env: node
     plan: free
     buildCommand: ./deploy-render.sh
-    startCommand: npm start
+    startCommand: ./start-render.sh
     envVars:
       - key: NODE_ENV
         value: production
