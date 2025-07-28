@@ -64,7 +64,9 @@ export interface IStorage {
   // Device States
   getDeviceStates(): Promise<DeviceState[]>;
   getDeviceState(deviceType: string): Promise<DeviceState | undefined>;
-  updateDeviceState(deviceType: string, isOn: boolean): Promise<DeviceState>;
+  createDeviceState(device: InsertDeviceState): Promise<DeviceState>;
+  updateDeviceState(id: string, updates: Partial<InsertDeviceState>): Promise<DeviceState | undefined>;
+  deleteDeviceState(id: string): Promise<boolean>;
 
   // Backups
   getBackups(): Promise<Backup[]>;
@@ -223,20 +225,45 @@ export class DatabaseStorage implements IStorage {
     return device || undefined;
   }
 
-  async updateDeviceState(deviceType: string, isOn: boolean): Promise<DeviceState> {
-    const [device] = await db.update(deviceStates)
-      .set({ isOn, lastToggled: new Date() })
-      .where(eq(deviceStates.deviceType, deviceType))
-      .returning();
-    
-    if (device) return device;
-
-    // Create new device state if it doesn't exist
-    const [newDevice] = await db.insert(deviceStates).values({
-      deviceType,
-      isOn,
-    }).returning();
+  async createDeviceState(device: InsertDeviceState): Promise<DeviceState> {
+    const [newDevice] = await db.insert(deviceStates).values(device).returning();
     return newDevice;
+  }
+
+  async updateDeviceState(id: string, updates: Partial<InsertDeviceState>): Promise<DeviceState | undefined> {
+    // If this is a legacy call with deviceType, handle backward compatibility
+    if (typeof id !== 'string' || !id.includes('-')) {
+      const deviceType = id;
+      const isOn = (updates as any);
+      
+      const [device] = await db.update(deviceStates)
+        .set({ isOn, lastToggled: new Date() })
+        .where(eq(deviceStates.deviceType, deviceType))
+        .returning();
+      
+      if (device) return device;
+
+      // Create new device state if it doesn't exist
+      const [newDevice] = await db.insert(deviceStates).values({
+        deviceType,
+        isOn,
+        name: `Device ${deviceType}`,
+      }).returning();
+      return newDevice;
+    }
+
+    // Modern update by ID
+    const updateData = { ...updates, lastToggled: new Date() };
+    const [device] = await db.update(deviceStates)
+      .set(updateData)
+      .where(eq(deviceStates.id, id))
+      .returning();
+    return device || undefined;
+  }
+
+  async deleteDeviceState(id: string): Promise<boolean> {
+    const result = await db.delete(deviceStates).where(eq(deviceStates.id, id));
+    return result.rowCount > 0;
   }
 
   // Backups

@@ -435,13 +435,64 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.post("/api/devices", async (req, res) => {
+    try {
+      const { plantId, deviceGroup, deviceType, name, isOn = false } = req.body;
+      
+      if (!deviceType || !name) {
+        return res.status(400).json({ error: "Device type and name are required" });
+      }
+
+      const device = await storage.createDeviceState({
+        plantId,
+        deviceGroup,
+        deviceType,
+        name,
+        isOn,
+      });
+      
+      res.status(201).json(device);
+    } catch (error) {
+      res.status(400).json({ error: "Failed to create device" });
+    }
+  });
+
+  app.put("/api/devices/:id", async (req, res) => {
+    try {
+      const { id } = req.params;
+      const updateData = req.body;
+      
+      const updatedDevice = await storage.updateDeviceState(id, updateData);
+      if (!updatedDevice) {
+        return res.status(404).json({ error: "Device not found" });
+      }
+      
+      res.json(updatedDevice);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to update device" });
+    }
+  });
+
+  app.delete("/api/devices/:id", async (req, res) => {
+    try {
+      const deleted = await storage.deleteDeviceState(req.params.id);
+      if (!deleted) {
+        return res.status(404).json({ error: "Device not found" });
+      }
+      res.json({ success: true });
+    } catch (error) {
+      res.status(500).json({ error: "Failed to delete device" });
+    }
+  });
+
+  // Legacy device toggle endpoint (for backward compatibility)
   app.post("/api/devices/:deviceType/toggle", async (req, res) => {
     try {
       const { deviceType } = req.params;
       const currentState = await storage.getDeviceState(deviceType);
       const newState = !currentState?.isOn;
       
-      const updatedDevice = await storage.updateDeviceState(deviceType, newState);
+      const updatedDevice = await storage.updateDeviceState(deviceType, newState as any);
       res.json(updatedDevice);
     } catch (error) {
       res.status(500).json({ error: "Failed to toggle device" });

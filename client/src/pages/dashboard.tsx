@@ -2,7 +2,7 @@ import { Link } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import { Sprout, Plus, Settings, Bell } from "lucide-react";
 import EnvironmentCard from "@/components/environment-card";
-import ControlPanel from "@/components/control-panel";
+
 import CameraSection from "@/components/camera-section";
 import AddPlantForm from "@/components/add-plant-form";
 import PlantsGrid from "@/components/plants-grid";
@@ -145,9 +145,32 @@ export default function Dashboard() {
               case "controls":
                 return (
                   <div key="controls" className={getWidgetClassName("controls")}>
-                    <h3 className="text-xl font-bold text-white mb-4">Controls</h3>
-                    <div className="overflow-y-auto h-full">
-                      <ControlPanel devices={devices} />
+                    <h3 className="text-xl font-bold text-white mb-4">Plant Controls</h3>
+                    <div className="overflow-y-auto h-full bg-gray-800 rounded-lg p-6 border border-gray-700">
+                      <div className="text-center">
+                        <div className="w-16 h-16 bg-plant-green-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                          <Sprout className="w-8 h-8 text-white" />
+                        </div>
+                        <h4 className="text-white font-semibold mb-2">Device Controls Moved</h4>
+                        <p className="text-gray-400 mb-4">
+                          Device controls are now individual to each plant. Visit any plant's detail page to access its specific controls and sensors.
+                        </p>
+                        {plants.length > 0 && (
+                          <div className="space-y-2">
+                            <p className="text-sm text-gray-400 mb-2">Quick access to plant controls:</p>
+                            {plants.slice(0, 3).map(plant => (
+                              <Link key={plant.id} href={`/plant/${plant.id}`}>
+                                <Button variant="outline" size="sm" className="w-full">
+                                  {plant.name} Controls
+                                </Button>
+                              </Link>
+                            ))}
+                            {plants.length > 3 && (
+                              <p className="text-xs text-gray-500">+ {plants.length - 3} more plants</p>
+                            )}
+                          </div>
+                        )}
+                      </div>
                     </div>
                   </div>
                 );

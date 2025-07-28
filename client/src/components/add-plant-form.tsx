@@ -58,6 +58,7 @@ export default function AddPlantForm() {
       strainType: data.strainType,
       location: data.location,
       stage: data.stage,
+      deviceGroup: data.deviceGroup || undefined,
     };
     addPlantMutation.mutate(cleanData);
   };
@@ -153,6 +154,28 @@ export default function AddPlantForm() {
                       <SelectItem value="flowering">Flowering</SelectItem>
                     </SelectContent>
                   </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="deviceGroup"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-gray-300">Device Group (Optional)</FormLabel>
+                  <FormControl>
+                    <Input 
+                      placeholder="e.g., tent-1, greenhouse-a" 
+                      className="bg-gray-700 border-gray-600 text-white placeholder-gray-400 focus:ring-plant-green-500 focus:border-transparent"
+                      {...field} 
+                      value={field.value || ""}
+                    />
+                  </FormControl>
+                  <p className="text-sm text-gray-400 mt-1">
+                    Plants in the same group will share device controls and sensors
+                  </p>
                   <FormMessage />
                 </FormItem>
               )}

@@ -10,6 +10,7 @@ export const plants = pgTable("plants", {
   location: text("location").notNull(),
   stage: text("stage").notNull(),
   color: text("color").notNull().default("#22c55e"), // Default green color
+  deviceGroup: text("device_group"), // For grouping plants that share devices/sensors
   plantedDate: timestamp("planted_date").notNull().defaultNow(),
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
@@ -24,6 +25,8 @@ export const photos = pgTable("photos", {
 
 export const sensorData = pgTable("sensor_data", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  plantId: varchar("plant_id").references(() => plants.id),
+  deviceGroup: text("device_group"), // For grouping plants that share sensors
   temperature: integer("temperature").notNull(),
   humidity: integer("humidity").notNull(),
   soilMoisture: integer("soil_moisture").notNull(),
@@ -53,7 +56,10 @@ export const feedingSchedules = pgTable("feeding_schedules", {
 
 export const deviceStates = pgTable("device_states", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  deviceType: text("device_type").notNull(), // light, fan, pump
+  plantId: varchar("plant_id").references(() => plants.id),
+  deviceGroup: text("device_group"), // For grouping plants that share devices (e.g., "tent-1")
+  deviceType: text("device_type").notNull(), // light, fan, pump, heater, humidifier
+  name: text("name").notNull().default("Device"), // Custom device name
   isOn: boolean("is_on").notNull().default(false),
   lastToggled: timestamp("last_toggled").notNull().defaultNow(),
 });

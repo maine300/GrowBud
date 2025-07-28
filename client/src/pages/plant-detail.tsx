@@ -10,6 +10,8 @@ import CameraSection from "@/components/camera-section";
 import CareCalendar from "@/components/care-calendar";
 import FeedingScheduleUpload from "@/components/feeding-schedule-upload";
 import PlantColorPicker from "@/components/plant-color-picker";
+import DeviceControlsPlant from "@/components/device-controls-plant";
+import SensorDataPlant from "@/components/sensor-data-plant";
 import { useToast } from "@/hooks/use-toast";
 import type { Plant, Photo, CalendarEvent } from "@shared/schema";
 
@@ -182,6 +184,12 @@ export default function PlantDetail() {
         {/* Calendar Section - Full Width */}
         <div className="mb-8 h-[48rem]">
           <CareCalendar plantId={plant.id} />
+        </div>
+
+        {/* Device Controls and Sensors */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+          <DeviceControlsPlant plantId={plant.id} plant={plant} />
+          <SensorDataPlant plantId={plant.id} plant={plant} />
         </div>
 
         {/* Feeding Schedule Upload */}
