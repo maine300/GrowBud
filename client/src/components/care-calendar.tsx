@@ -269,7 +269,7 @@ export default function CareCalendar({ plantId }: CareCalendarProps) {
           </div>
         )}
       </CardHeader>
-      <CardContent>
+      <CardContent className="h-full flex flex-col overflow-hidden">
         {/* Calendar Grid */}
         <div className="grid grid-cols-7 gap-1 mb-4">
           {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
@@ -279,15 +279,17 @@ export default function CareCalendar({ plantId }: CareCalendarProps) {
           ))}
         </div>
 
-        <div className="grid grid-cols-7 gap-1">
+        <div className="grid grid-cols-7 gap-1 flex-1">
           {days.map((day, index) => (
-            <div key={index} className="bg-gray-700 rounded p-2 min-h-16 text-sm">
+            <div key={index} className="bg-gray-700 rounded p-2 min-h-24 text-sm">
               {day ? (
                 <>
-                  <div className="text-white font-medium">{day.day}</div>
-                  {day.events.map((event) => (
-                    <EditableTaskItem key={event.id} event={event} />
-                  ))}
+                  <div className="text-white font-medium mb-1">{day.day}</div>
+                  <div className="space-y-1">
+                    {day.events.map((event) => (
+                      <EditableTaskItem key={event.id} event={event} />
+                    ))}
+                  </div>
                 </>
               ) : null}
             </div>

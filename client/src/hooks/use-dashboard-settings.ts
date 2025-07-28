@@ -43,6 +43,11 @@ export function useDashboardSettings() {
         if (!parsed.widgetOrder) {
           parsed.widgetOrder = DEFAULT_SETTINGS.widgetOrder;
         }
+        // Update calendar size to large if it's still medium from old settings
+        if (parsed.widgetSizes?.calendar === "medium") {
+          parsed.widgetSizes.calendar = "large";
+          localStorage.setItem("dashboard-settings", JSON.stringify(parsed));
+        }
         return parsed;
       }
       return DEFAULT_SETTINGS;
@@ -81,30 +86,42 @@ export function useDashboardSettings() {
     
     let className = "bg-gray-800 rounded-lg p-6 ";
     
-    // Size classes - fixed heights to prevent overflow
+    // Size classes - fixed heights to prevent overflow, calendar gets extra height
     switch (size) {
       case "small":
-        className += isCompact ? "h-48" : "h-56";
+        className += widget === "calendar" 
+          ? (isCompact ? "h-64" : "h-80") 
+          : (isCompact ? "h-48" : "h-56");
         break;
       case "medium":
-        className += isCompact ? "h-64" : "h-72";
+        className += widget === "calendar" 
+          ? (isCompact ? "h-96" : "h-[32rem]") 
+          : (isCompact ? "h-64" : "h-72");
         break;
       case "large":
-        className += isCompact ? "h-80" : "h-96";
+        className += widget === "calendar" 
+          ? (isCompact ? "h-[36rem]" : "h-[42rem]") 
+          : (isCompact ? "h-80" : "h-96");
         break;
     }
     
-    // Layout specific classes
+    // Layout specific classes - calendar gets more space
     if (settings.layout === "compact") {
-      className += " col-span-1";
+      className += widget === "calendar" ? " col-span-2" : " col-span-1";
     } else if (settings.layout === "masonry") {
-      className += size === "large" ? " col-span-2" : " col-span-1";
+      if (widget === "calendar") {
+        className += " col-span-2 lg:col-span-3";
+      } else {
+        className += size === "large" ? " col-span-2" : " col-span-1";
+      }
     } else {
       // Grid layout - proper responsive columns
       if (widget === "plants") {
         className += " col-span-1 md:col-span-2";
       } else if (widget === "environment") {
         className += " col-span-1 md:col-span-2 lg:col-span-3";
+      } else if (widget === "calendar") {
+        className += " col-span-1 md:col-span-2 lg:col-span-2";
       } else {
         className += " col-span-1";
       }
