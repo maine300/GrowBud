@@ -10,6 +10,22 @@ This is a full-stack smart plant monitoring application built for IoT plant mana
 Preferred communication style: Simple, everyday language.
 ```
 
+## Recent Changes (Latest Session)
+
+### Completed Features
+- **Editable Calendar Tasks**: Users can now click on any calendar task to edit the text inline. Click to edit, Enter to save, Escape to cancel.
+- **Complete Cannabis Growing Schedule**: Added comprehensive 145-day seed-to-harvest schedule with professional PPM levels, watering schedules, and advanced techniques (LST, SCROG, topping, lollipopping).
+- **Feeding Schedule Upload on Plant Pages**: Added feeding schedule upload feature directly to individual plant detail pages for better accessibility.
+- **Professional Growing Techniques**: Schedule includes specific PPM levels (200-1200), timing for techniques, trichome monitoring, and proper curing processes.
+
+### Technical Implementation
+- Enhanced calendar event generation endpoint with complete cannabis lifecycle
+- Added EditableTaskItem component with inline editing capabilities
+- Integrated feeding schedule upload dialog into plant detail sidebar
+- Complete schedule option generates all stages from seed to harvest (145 days total)
+
+Date: January 27, 2025
+
 ## System Architecture
 
 ### Frontend Architecture
