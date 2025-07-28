@@ -20,10 +20,12 @@ export default function Dashboard() {
     queryKey: ["/api/plants"],
   });
 
-  const { data: sensorData } = useQuery<SensorData>({
+  const { data: sensorDataArray = [] } = useQuery<SensorData[]>({
     queryKey: ["/api/sensor-data"],
     refetchInterval: settings.refreshInterval * 1000,
   });
+  
+  const sensorData = sensorDataArray[0]; // Use first sensor data for dashboard
 
   const { data: devices = [] } = useQuery<DeviceState[]>({
     queryKey: ["/api/devices"],

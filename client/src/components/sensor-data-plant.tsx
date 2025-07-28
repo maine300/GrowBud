@@ -19,15 +19,17 @@ interface SensorReading {
 }
 
 export default function SensorDataPlant({ plantId, plant }: SensorDataPlantProps) {
-  const { data: allSensorData } = useQuery<SensorReading[]>({
+  const { data: allSensorData = [] } = useQuery<SensorReading[]>({
     queryKey: ["/api/sensor-data"],
   });
 
   // Get sensor data for this plant or its device group
-  const sensorData = allSensorData?.find((data: SensorReading) => 
-    data.plantId === plantId || 
-    (data.deviceGroup && data.deviceGroup === plant.deviceGroup)
-  );
+  const sensorData = Array.isArray(allSensorData) && allSensorData.length > 0
+    ? allSensorData.find((data: SensorReading) => 
+        data.plantId === plantId || 
+        (data.deviceGroup && data.deviceGroup === plant.deviceGroup)
+      ) || allSensorData[0] // Fallback to first available sensor data
+    : undefined;
 
   const getStatusColor = (value: number, type: string) => {
     switch (type) {

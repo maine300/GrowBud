@@ -298,10 +298,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
         };
         
         const sensorData = await storage.createSensorData(simulatedData);
-        return res.json(sensorData);
+        return res.json([sensorData]); // Return as array for consistency
       }
       
-      res.json(latest);
+      res.json([latest]); // Return as array for consistency
     } catch (error) {
       res.status(500).json({ error: "Failed to fetch sensor data" });
     }
