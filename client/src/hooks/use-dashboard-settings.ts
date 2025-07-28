@@ -90,17 +90,17 @@ export function useDashboardSettings() {
     switch (size) {
       case "small":
         className += widget === "calendar" 
-          ? (isCompact ? "h-64" : "h-80") 
+          ? (isCompact ? "h-80" : "h-96") 
           : (isCompact ? "h-48" : "h-56");
         break;
       case "medium":
         className += widget === "calendar" 
-          ? (isCompact ? "h-96" : "h-[32rem]") 
+          ? (isCompact ? "h-[32rem]" : "h-[40rem]") 
           : (isCompact ? "h-64" : "h-72");
         break;
       case "large":
         className += widget === "calendar" 
-          ? (isCompact ? "h-[36rem]" : "h-[42rem]") 
+          ? (isCompact ? "h-[40rem]" : "h-[48rem]") 
           : (isCompact ? "h-80" : "h-96");
         break;
     }

@@ -69,7 +69,7 @@ function EditableTaskItem({ event }: { event: CalendarEvent }) {
 
   return (
     <div
-      className={`text-xs mt-1 p-1 rounded cursor-pointer ${
+      className={`text-xs mb-1 p-1 rounded cursor-pointer ${
         event.completed 
           ? "bg-gray-600 text-gray-400 line-through" 
           : event.task.toLowerCase().includes('water') 
@@ -269,8 +269,8 @@ export default function CareCalendar({ plantId }: CareCalendarProps) {
           </div>
         )}
       </CardHeader>
-      <CardContent className="h-full flex flex-col overflow-hidden">
-        {/* Calendar Grid */}
+      <CardContent className="flex flex-col h-full">
+        {/* Calendar Grid - Header */}
         <div className="grid grid-cols-7 gap-1 mb-4">
           {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
             <div key={day} className="text-center text-xs font-medium text-gray-400 p-2">
@@ -279,13 +279,14 @@ export default function CareCalendar({ plantId }: CareCalendarProps) {
           ))}
         </div>
 
-        <div className="grid grid-cols-7 gap-1 flex-1">
+        {/* Calendar Grid - Days */}
+        <div className="grid grid-cols-7 gap-1 flex-1 min-h-0">
           {days.map((day, index) => (
-            <div key={index} className="bg-gray-700 rounded p-2 min-h-24 text-sm">
+            <div key={index} className="bg-gray-700 rounded p-1 text-xs flex flex-col">
               {day ? (
                 <>
-                  <div className="text-white font-medium mb-1">{day.day}</div>
-                  <div className="space-y-1">
+                  <div className="text-white font-medium mb-1 text-center">{day.day}</div>
+                  <div className="flex-1 overflow-y-auto">
                     {day.events.map((event) => (
                       <EditableTaskItem key={event.id} event={event} />
                     ))}
@@ -296,16 +297,16 @@ export default function CareCalendar({ plantId }: CareCalendarProps) {
           ))}
         </div>
 
-        {/* Today's Tasks */}
+        {/* Today's Tasks - Compact Version */}
         {todaysTasks.length > 0 && (
-          <div className="mt-6 pt-6 border-t border-gray-700">
-            <h4 className="text-white font-medium mb-3 flex items-center">
-              <Calendar className="w-4 h-4 mr-2" />
-              Today's Tasks
+          <div className="mt-4 pt-4 border-t border-gray-700 flex-shrink-0">
+            <h4 className="text-white font-medium mb-2 flex items-center text-sm">
+              <Calendar className="w-3 h-3 mr-1" />
+              Today ({todaysTasks.length})
             </h4>
-            <div className="space-y-2">
+            <div className="max-h-20 overflow-y-auto space-y-1">
               {todaysTasks.map((task) => (
-                <div key={task.id} className="flex items-center space-x-3 p-2 bg-gray-700 rounded">
+                <div key={task.id} className="flex items-center space-x-2 p-1 bg-gray-700 rounded text-xs">
                   <input
                     type="checkbox"
                     checked={task.completed}
@@ -315,9 +316,9 @@ export default function CareCalendar({ plantId }: CareCalendarProps) {
                         completed: e.target.checked 
                       })
                     }
-                    className="w-4 h-4 text-plant-green-600 rounded focus:ring-plant-green-500"
+                    className="w-3 h-3 text-plant-green-600 rounded focus:ring-plant-green-500"
                   />
-                  <span className={`text-white text-sm ${task.completed ? 'line-through text-gray-400' : ''}`}>
+                  <span className={`text-white flex-1 ${task.completed ? 'line-through text-gray-400' : ''}`}>
                     {task.task}
                   </span>
                 </div>
