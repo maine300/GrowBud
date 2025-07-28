@@ -33,8 +33,12 @@ Preferred communication style: Simple, everyday language.
 - Integrated feeding schedule upload dialog into plant detail sidebar
 - Complete schedule option generates all stages from seed to harvest (145 days total)
 - Implemented dynamic widget sizing and layout system with CSS class generation
+- **ESP32/ESP8266 Integration**: Added complete hardware integration with Arduino code for sensor reading and device control
+- **Stage-Based Light Automation**: Fixed light schedules to properly reflect plant growth stages (16/8 seed, 18/6 veg, 12/12 flower)
+- **Plant Height Tracking**: Added height field to database with growth insights and stage recommendations
+- **Professional Analytics**: Enhanced analytics with real height-based growth rate calculations
 
-Date: January 27, 2025
+Date: January 28, 2025
 
 ## System Architecture
 
