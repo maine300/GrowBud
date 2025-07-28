@@ -89,7 +89,15 @@ export default function PlantsGrid({ plants }: PlantsGridProps) {
           })}
 
           {/* Add New Plant Card */}
-          <Card className="bg-gray-700 border-2 border-dashed border-gray-600 hover:border-plant-green-500 transition-colors duration-200 cursor-pointer">
+          <Card 
+            className="bg-gray-700 border-2 border-dashed border-gray-600 hover:border-plant-green-500 transition-colors duration-200 cursor-pointer"
+            onClick={() => {
+              const addPlantSection = document.querySelector('[data-add-plant]');
+              if (addPlantSection) {
+                addPlantSection.scrollIntoView({ behavior: 'smooth' });
+              }
+            }}
+          >
             <CardContent className="p-4 flex items-center justify-center min-h-32">
               <div className="text-center">
                 <Plus className="w-8 h-8 text-gray-400 mx-auto mb-2" />

@@ -44,7 +44,17 @@ export default function Dashboard() {
               </div>
             </div>
             <div className="flex items-center space-x-4">
-              <Button size="sm" className="bg-plant-green-600 hover:bg-plant-green-700">
+              <Button 
+                size="sm" 
+                className="bg-plant-green-600 hover:bg-plant-green-700"
+                onClick={() => {
+                  // Scroll to the plants section or show add plant form
+                  const plantsSection = document.querySelector('[data-widget="plants"]');
+                  if (plantsSection) {
+                    plantsSection.scrollIntoView({ behavior: 'smooth' });
+                  }
+                }}
+              >
                 <Plus className="w-4 h-4 mr-2" />
                 Add Plant
               </Button>
@@ -106,10 +116,29 @@ export default function Dashboard() {
                 );
               case "plants":
                 return (
-                  <div key="plants" className={getWidgetClassName("plants")}>
-                    <h3 className="text-xl font-bold text-white mb-4">Plants</h3>
-                    <div className="overflow-y-auto h-full">
+                  <div key="plants" className={getWidgetClassName("plants")} data-widget="plants">
+                    <div className="flex justify-between items-center mb-4">
+                      <h3 className="text-xl font-bold text-white">Plants</h3>
+                      <Button 
+                        size="sm" 
+                        className="bg-plant-green-600 hover:bg-plant-green-700"
+                        onClick={() => {
+                          // Show add plant form - we'll create a modal or expand form
+                          const addPlantSection = document.querySelector('[data-add-plant]');
+                          if (addPlantSection) {
+                            addPlantSection.scrollIntoView({ behavior: 'smooth' });
+                          }
+                        }}
+                      >
+                        <Plus className="w-4 h-4 mr-2" />
+                        Add
+                      </Button>
+                    </div>
+                    <div className="overflow-y-auto h-full space-y-4">
                       <PlantsGrid plants={plants} />
+                      <div data-add-plant>
+                        <AddPlantForm />
+                      </div>
                     </div>
                   </div>
                 );

@@ -220,7 +220,7 @@ export default function CareCalendar({ plantId }: CareCalendarProps) {
   };
 
   return (
-    <Card className="bg-gray-800 border-gray-700">
+    <Card className="bg-gray-800 border-gray-700 h-full">
       <CardHeader>
         <div className="flex items-center justify-between">
           <CardTitle className="text-xl font-semibold text-white">Care Calendar</CardTitle>

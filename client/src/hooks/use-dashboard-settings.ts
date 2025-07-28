@@ -22,11 +22,11 @@ const DEFAULT_SETTINGS: DashboardSettings = {
   widgetSizes: {
     environment: "medium",
     plants: "large",
-    calendar: "medium",
+    calendar: "large", // Make calendar bigger by default
     controls: "small",
     analytics: "medium",
   },
-  widgetOrder: ["environment", "plants", "controls", "calendar", "analytics"],
+  widgetOrder: ["environment", "plants", "calendar", "controls", "analytics"],
   theme: "dark",
   compactMode: false,
   showGridLines: false,
