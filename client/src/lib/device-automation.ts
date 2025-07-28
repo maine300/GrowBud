@@ -62,38 +62,101 @@ export function calculateRecommendedIntensity(
     };
   }
 
-  // Target PPFD ranges by stage (μmol/m²/s)
-  const targetPPFD = {
-    seed: { min: 100, max: 300, optimal: 200 },
-    vegetative: { min: 300, max: 600, optimal: 450 },
-    flowering: { min: 600, max: 1000, optimal: 800 }
+  // Professional intensity recommendations table
+  const intensityTable: Record<number, Record<number, Record<string, number[]>>> = {
+    100: {
+      12: { seedling: [20, 30], vegetative: [50, 60], flowering: [80, 100] },
+      18: { seedling: [30, 40], vegetative: [60, 70], flowering: [100, 100] }
+    },
+    200: {
+      12: { seedling: [15, 25], vegetative: [40, 50], flowering: [70, 90] },
+      18: { seedling: [25, 35], vegetative: [60, 60], flowering: [100, 100] }
+    },
+    300: {
+      12: { seedling: [10, 20], vegetative: [30, 40], flowering: [60, 80] },
+      18: { seedling: [20, 30], vegetative: [50, 60], flowering: [100, 100] }
+    },
+    400: {
+      12: { seedling: [10, 15], vegetative: [25, 35], flowering: [50, 75] },
+      18: { seedling: [20, 30], vegetative: [40, 60], flowering: [80, 100] },
+      24: { seedling: [20, 30], vegetative: [40, 60], flowering: [80, 100] }
+    },
+    600: {
+      18: { seedling: [10, 10], vegetative: [30, 40], flowering: [60, 80] },
+      24: { seedling: [15, 25], vegetative: [50, 50], flowering: [100, 100] }
+    },
+    800: {
+      24: { seedling: [10, 20], vegetative: [30, 50], flowering: [70, 90] }
+    },
+    1000: {
+      24: { seedling: [10, 15], vegetative: [25, 40], flowering: [60, 90] },
+      30: { seedling: [15, 25], vegetative: [50, 60], flowering: [100, 100] }
+    }
   };
 
-  const stageKey = stage.toLowerCase() as keyof typeof targetPPFD;
-  const targets = targetPPFD[stageKey] || targetPPFD.vegetative;
+  // Convert distance from cm to inches for lookup
+  const distanceInches = Math.round(distance / 2.54);
+  
+  // Find closest wattage match
+  const wattages = Object.keys(intensityTable).map(Number).sort((a, b) => a - b);
+  const closestWattage = wattages.reduce((prev, curr) => 
+    Math.abs(curr - wattage) < Math.abs(prev - wattage) ? curr : prev
+  );
 
-  // Calculate PPFD based on inverse square law
-  // Assuming high-quality LED produces ~2.5 μmol/J efficiency
+  // Find closest distance match
+  const distances = Object.keys(intensityTable[closestWattage as keyof typeof intensityTable]).map(Number);
+  const closestDistance = distances.reduce((prev, curr) => 
+    Math.abs(curr - distanceInches) < Math.abs(prev - distanceInches) ? curr : prev
+  );
+
+  // Get stage recommendations
+  const stageKey = stage.toLowerCase() === 'seed' ? 'seedling' : 
+                  stage.toLowerCase() === 'vegetative' ? 'vegetative' : 'flowering';
+
+  const wattageData = intensityTable[closestWattage];
+  if (!wattageData) {
+    return {
+      intensity: 50,
+      reason: `No data available for ${wattage}W`,
+      ppfd: 0
+    };
+  }
+  
+  const distanceData = wattageData[closestDistance];
+  if (!distanceData) {
+    return {
+      intensity: 50,
+      reason: `No data available for ${distance}cm distance`,
+      ppfd: 0
+    };
+  }
+  
+  const stageRec = distanceData[stageKey];
+  
+  if (!stageRec) {
+    return {
+      intensity: 50,
+      reason: `No specific recommendation for ${wattage}W at ${distance}cm`,
+      ppfd: 0
+    };
+  }
+
+  // Use middle of range for recommendation
+  const intensity = Math.round((stageRec[0] + stageRec[1]) / 2);
+  
+  // Calculate approximate PPFD (rough estimation)
   const efficiency = 2.5; // μmol/J for quality LEDs
   const maxPPFD = (wattage * efficiency * 1000000) / (distance * distance * Math.PI);
+  const actualPPFD = (maxPPFD * intensity) / 100;
+
+  let reason = `${intensity}% (${stageRec[0]}–${stageRec[1]}%) for ${wattage}W at ${Math.round(distanceInches)}" in ${stage} stage`;
   
-  // Calculate required intensity percentage
-  let requiredIntensity = (targets.optimal / maxPPFD) * 100;
-  
-  // Clamp between 10% and 100%
-  requiredIntensity = Math.max(10, Math.min(100, requiredIntensity));
-  
-  const actualPPFD = (maxPPFD * requiredIntensity) / 100;
-  
-  let reason = `Target ${targets.optimal} PPFD for ${stage} stage`;
-  if (actualPPFD < targets.min) {
-    reason += ` (low light - consider moving closer)`;
-  } else if (actualPPFD > targets.max) {
-    reason += ` (high light - consider moving further)`;
+  if (closestWattage !== wattage) {
+    reason += ` (based on ${closestWattage}W)`;
   }
 
   return {
-    intensity: Math.round(requiredIntensity),
+    intensity,
     reason,
     ppfd: Math.round(actualPPFD)
   };
