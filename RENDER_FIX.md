@@ -19,6 +19,11 @@ ErrorEvent WebSocket connection failed
 error: relation "device_states" does not exist
 ```
 
+### 4. Static File Path Error (FIXED ✅)
+```bash
+Error: Could not find the build directory: /opt/render/project/src/dist/server/public
+```
+
 ## ✅ Complete Fix Applied
 
 I've updated your configuration to work with Render's infrastructure:
@@ -37,6 +42,11 @@ I've updated your configuration to work with Render's infrastructure:
 - Created `start-render.sh` script to run migrations before app starts
 - Added database migration to startup process
 - Ensures all required tables exist before app runs
+
+### 4. Fixed Static File Serving
+- Updated build process to copy static files to correct server location
+- Added file copy command to both package.json and render.yaml
+- Ensures frontend assets are accessible in production
 
 ### Files Updated:
 - ✅ `render.yaml` - Simplified with direct build and start commands
