@@ -78,32 +78,75 @@ const uploadSchedule = multer({
   }
 });
 
-// Stage presets for automated scheduling
-const STAGE_PRESETS = {
-  seed: [
-    { offset: 0, task: "Soak seeds" },
-    { offset: 1, task: "Plant in starter" },
-    { offset: 3, task: "Check moisture" },
-    { offset: 7, task: "Transplant to veg pot" }
-  ],
-  seedling: [
-    { offset: 0, task: "Monitor humidity" },
-    { offset: 2, task: "Gentle watering" },
-    { offset: 5, task: "Check for growth" },
-    { offset: 10, task: "Adjust lighting" }
-  ],
-  vegetative: [
-    { offset: 0, task: "Start 18/6 light cycle" },
-    { offset: 2, task: "Feed nutrients" },
-    { offset: 7, task: "Check height" },
-    { offset: 14, task: "Top plant" }
-  ],
-  flowering: [
-    { offset: 0, task: "Switch to 12/12 lights" },
-    { offset: 3, task: "Add bloom nutrients" },
-    { offset: 10, task: "Trim lower leaves" },
-    { offset: 21, task: "Check trichomes" }
+// Complete Cannabis Growing Schedule - Professional Grade
+const CANNABIS_SCHEDULE = {
+  complete: [
+    // Germination (Days 0-7)
+    { offset: 0, task: "Germinate seeds in paper towel method", stage: "seed" },
+    { offset: 2, task: "Check for taproot emergence", stage: "seed" },
+    { offset: 5, task: "Plant sprouted seeds in starter medium", stage: "seed" },
+    
+    // Seedling Stage (Days 7-21)
+    { offset: 7, task: "First watering - pH 6.0-6.5, light misting", stage: "seedling" },
+    { offset: 10, task: "Monitor for first true leaves", stage: "seedling" },
+    { offset: 14, task: "Begin weak nutrients (200-400 PPM)", stage: "seedling" },
+    { offset: 17, task: "Increase light to 18/6 schedule", stage: "seedling" },
+    { offset: 21, task: "Transplant to 1-gallon containers", stage: "seedling" },
+    
+    // Early Vegetative (Days 21-42)
+    { offset: 24, task: "Water/feed cycle - nutrients 400-600 PPM", stage: "vegetative" },
+    { offset: 28, task: "First topping for bushier growth", stage: "vegetative" },
+    { offset: 31, task: "Monitor for pest issues - neem oil spray", stage: "vegetative" },
+    { offset: 35, task: "Increase nutrients to 600-800 PPM", stage: "vegetative" },
+    { offset: 38, task: "LST (Low Stress Training) begins", stage: "vegetative" },
+    { offset: 42, task: "Transplant to final containers (3-5 gallon)", stage: "vegetative" },
+    
+    // Mid Vegetative (Days 42-56)
+    { offset: 45, task: "Full strength veg nutrients (800-1000 PPM)", stage: "vegetative" },
+    { offset: 49, task: "Defoliation - remove lower fan leaves", stage: "vegetative" },
+    { offset: 52, task: "SCROG setup if using (Screen of Green)", stage: "vegetative" },
+    { offset: 56, task: "Final vegetative feeding", stage: "vegetative" },
+    
+    // Pre-Flower Transition (Days 56-63)
+    { offset: 58, task: "Switch to 12/12 light cycle", stage: "flowering" },
+    { offset: 60, task: "Begin transition nutrients (lower N, higher P-K)", stage: "flowering" },
+    { offset: 63, task: "Watch for first pistils (flower sites)", stage: "flowering" },
+    
+    // Early Flowering (Days 63-84)
+    { offset: 66, task: "Full flowering nutrients (1000-1200 PPM)", stage: "flowering" },
+    { offset: 70, task: "Remove male plants if not feminized", stage: "flowering" },
+    { offset: 73, task: "Lollipop lower branches (remove small buds)", stage: "flowering" },
+    { offset: 77, task: "Monitor for nutrient burn - adjust if needed", stage: "flowering" },
+    { offset: 80, task: "Increase P-K nutrients for bud development", stage: "flowering" },
+    { offset: 84, task: "Check trichomes with jeweler's loupe", stage: "flowering" },
+    
+    // Mid-Late Flowering (Days 84-105)
+    { offset: 87, task: "Reduce nitrogen further, max P-K", stage: "flowering" },
+    { offset: 91, task: "Monitor trichomes - 10% amber for head high", stage: "flowering" },
+    { offset: 94, task: "Check for bud rot and powdery mildew", stage: "flowering" },
+    { offset: 98, task: "Begin flushing with pH'd water only", stage: "flowering" },
+    { offset: 101, task: "Trichomes 20-30% amber for body effect", stage: "flowering" },
+    { offset: 105, task: "Final flush - 48 hours darkness before harvest", stage: "flowering" },
+    
+    // Harvest (Days 105-145)
+    { offset: 107, task: "Harvest when trichomes are 30% amber", stage: "harvest" },
+    { offset: 108, task: "Wet trim fan leaves and sugar leaves", stage: "harvest" },
+    { offset: 109, task: "Hang dry in 60°F, 60% humidity, dark room", stage: "harvest" },
+    { offset: 115, task: "Check drying - stems should snap, not bend", stage: "harvest" },
+    { offset: 117, task: "Begin curing in airtight jars", stage: "harvest" },
+    { offset: 124, task: "Burp jars daily for first week of cure", stage: "harvest" },
+    { offset: 131, task: "Burp jars every 2-3 days", stage: "harvest" },
+    { offset: 145, task: "Optimal cure complete", stage: "harvest" },
   ]
+};
+
+const STAGE_PRESETS = {
+  seed: CANNABIS_SCHEDULE.complete.filter(item => item.stage === "seed"),
+  seedling: CANNABIS_SCHEDULE.complete.filter(item => item.stage === "seedling"),
+  vegetative: CANNABIS_SCHEDULE.complete.filter(item => item.stage === "vegetative"),
+  flowering: CANNABIS_SCHEDULE.complete.filter(item => item.stage === "flowering"),
+  harvest: CANNABIS_SCHEDULE.complete.filter(item => item.stage === "harvest"),
+  complete: CANNABIS_SCHEDULE.complete,
 };
 
 export async function registerRoutes(app: Express): Promise<Server> {
@@ -313,15 +356,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ error: "Missing required fields" });
       }
 
-      const presets = STAGE_PRESETS[stage as keyof typeof STAGE_PRESETS];
-      if (!presets) {
-        return res.status(400).json({ error: "Invalid stage" });
+      // Generate complete schedule from selected stage to harvest
+      let filteredSchedule = CANNABIS_SCHEDULE.complete;
+      
+      if (stage !== "complete") {
+        const stageOrder = ["seed", "seedling", "vegetative", "flowering", "harvest"];
+        const startIndex = stageOrder.indexOf(stage);
+        if (startIndex === -1) {
+          return res.status(400).json({ error: "Invalid stage" });
+        }
+        
+        filteredSchedule = CANNABIS_SCHEDULE.complete.filter(item => {
+          const itemStageIndex = stageOrder.indexOf(item.stage);
+          return itemStageIndex >= startIndex;
+        });
       }
 
       const events = [];
       const baseDate = new Date(startDate);
 
-      for (const preset of presets) {
+      for (const preset of filteredSchedule) {
         const eventDate = new Date(baseDate);
         eventDate.setDate(eventDate.getDate() + preset.offset);
         

@@ -12,6 +12,107 @@ interface CareCalendarProps {
   plantId?: string;
 }
 
+// Editable Task Item Component
+function EditableTaskItem({ event }: { event: CalendarEvent }) {
+  const [isEditing, setIsEditing] = useState(false);
+  const [editText, setEditText] = useState(event.task);
+  const queryClient = useQueryClient();
+
+  const updateTaskMutation = useMutation({
+    mutationFn: async ({ eventId, task }: { eventId: string; task: string }) => {
+      const response = await fetch(`/api/calendar-events/${eventId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ task }),
+      });
+      if (!response.ok) throw new Error("Failed to update task");
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/calendar-events"] });
+      setIsEditing(false);
+    },
+  });
+
+  const toggleTaskMutation = useMutation({
+    mutationFn: async ({ eventId, completed }: { eventId: string; completed: boolean }) => {
+      const response = await fetch(`/api/calendar-events/${eventId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ completed }),
+      });
+      if (!response.ok) throw new Error("Failed to update task");
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/calendar-events"] });
+    },
+  });
+
+  const handleSave = () => {
+    if (editText.trim() && editText !== event.task) {
+      updateTaskMutation.mutate({ eventId: event.id, task: editText.trim() });
+    } else {
+      setIsEditing(false);
+      setEditText(event.task);
+    }
+  };
+
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter") {
+      handleSave();
+    } else if (e.key === "Escape") {
+      setIsEditing(false);
+      setEditText(event.task);
+    }
+  };
+
+  return (
+    <div
+      className={`text-xs mt-1 p-1 rounded cursor-pointer ${
+        event.completed 
+          ? "bg-gray-600 text-gray-400 line-through" 
+          : event.task.toLowerCase().includes('water') 
+            ? "bg-blue-600 text-white"
+            : event.task.toLowerCase().includes('nutrients')
+              ? "bg-amber-600 text-white"
+              : "bg-plant-green-600 text-white"
+      }`}
+    >
+      {isEditing ? (
+        <input
+          type="text"
+          value={editText}
+          onChange={(e) => setEditText(e.target.value)}
+          onBlur={handleSave}
+          onKeyDown={handleKeyPress}
+          className="w-full bg-transparent border-none outline-none text-xs text-white placeholder-gray-300"
+          autoFocus
+        />
+      ) : (
+        <div 
+          onClick={() => setIsEditing(true)}
+          className="flex items-center justify-between"
+        >
+          <span className="flex-1">{event.task}</span>
+          <input
+            type="checkbox"
+            checked={event.completed}
+            onChange={(e) => 
+              toggleTaskMutation.mutate({ 
+                eventId: event.id, 
+                completed: e.target.checked 
+              })
+            }
+            onClick={(e) => e.stopPropagation()}
+            className="ml-1 w-3 h-3"
+          />
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function CareCalendar({ plantId }: CareCalendarProps) {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [generateStage, setGenerateStage] = useState("");
@@ -146,6 +247,7 @@ export default function CareCalendar({ plantId }: CareCalendarProps) {
                 <SelectItem value="seedling">Seedling</SelectItem>
                 <SelectItem value="vegetative">Vegetative</SelectItem>
                 <SelectItem value="flowering">Flowering</SelectItem>
+                <SelectItem value="complete">Complete (Seed to Harvest)</SelectItem>
               </SelectContent>
             </Select>
             
@@ -184,20 +286,7 @@ export default function CareCalendar({ plantId }: CareCalendarProps) {
                 <>
                   <div className="text-white font-medium">{day.day}</div>
                   {day.events.map((event) => (
-                    <div
-                      key={event.id}
-                      className={`text-xs mt-1 p-1 rounded ${
-                        event.completed 
-                          ? "bg-gray-600 text-gray-400 line-through" 
-                          : event.task.toLowerCase().includes('water') 
-                            ? "bg-blue-600 text-white"
-                            : event.task.toLowerCase().includes('nutrients')
-                              ? "bg-amber-600 text-white"
-                              : "bg-plant-green-600 text-white"
-                      }`}
-                    >
-                      {event.task}
-                    </div>
+                    <EditableTaskItem key={event.id} event={event} />
                   ))}
                 </>
               ) : null}
