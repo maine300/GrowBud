@@ -39,22 +39,22 @@ I've updated your configuration to work with Render's infrastructure:
 - Ensures all required tables exist before app runs
 
 ### Files Updated:
-- ✅ `render.yaml` - Fixed build and start commands
-- ✅ `deploy-render.sh` - Comprehensive build script  
-- ✅ `start-render.sh` - Database migration and startup script
+- ✅ `render.yaml` - Simplified with direct build and start commands
+- ✅ `deploy-render.sh` - Comprehensive build script (fallback)
+- ✅ `start-render.sh` - Database migration and startup script (fallback)  
 - ✅ `server/db.ts` - Standard PostgreSQL configuration
-- ✅ `package.json` - Added pg dependency
+- ✅ `package.json` - Added pg dependency + migration in start script
 
 ## 🚀 Next Steps
 
 1. **Push ALL fixes to GitHub:**
 ```bash
 git add .
-git commit -m "Fix Render deployment: build process and database config"
+git commit -m "Fix Render deployment: database migrations in start script"
 git push
 ```
 
-2. **Redeploy on Render** - both issues are now resolved
+2. **Redeploy on Render** - all issues are now resolved with dual migration approach
 
 ## What Was Wrong & How I Fixed It
 
