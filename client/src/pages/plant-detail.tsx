@@ -175,7 +175,9 @@ export default function PlantDetail() {
             <CameraSection plantId={plant.id} photos={photos} />
           </div>
           <div className="space-y-6">
-            <CareCalendar plantId={plant.id} />
+            <div className="h-[48rem]">
+              <CareCalendar plantId={plant.id} />
+            </div>
             
             {/* Feeding Schedule Upload */}
             <Card className="bg-gray-800 border-gray-700">
