@@ -37,7 +37,7 @@ const upload = multer({
     if (file.mimetype.startsWith('image/')) {
       cb(null, true);
     } else {
-      cb(new Error('Only image files are allowed'), false);
+      cb(new Error('Only image files are allowed'));
     }
   }
 });
@@ -73,7 +73,7 @@ const uploadSchedule = multer({
     if (allowedTypes.includes(file.mimetype)) {
       cb(null, true);
     } else {
-      cb(new Error('Only Excel, PDF, or CSV files are allowed'), false);
+      cb(new Error('Only Excel, PDF, or CSV files are allowed'));
     }
   }
 });
@@ -211,6 +211,72 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json({ success: true });
     } catch (error) {
       res.status(500).json({ error: "Failed to delete plant" });
+    }
+  });
+
+  // Plant stage flip endpoint
+  app.post("/api/plants/:id/flip-stage", async (req, res) => {
+    try {
+      const plant = await storage.getPlant(req.params.id);
+      if (!plant) {
+        return res.status(404).json({ error: "Plant not found" });
+      }
+
+      // Determine next stage
+      const stageProgression = ["seed", "vegetative", "flowering", "harvest"];
+      const currentIndex = stageProgression.indexOf(plant.stage);
+      
+      if (currentIndex === -1 || currentIndex === stageProgression.length - 1) {
+        return res.status(400).json({ error: "Cannot advance stage further" });
+      }
+
+      const nextStage = stageProgression[currentIndex + 1];
+      
+      // Update plant stage
+      const updatedPlant = await storage.updatePlant(req.params.id, { stage: nextStage });
+      
+      // Delete existing calendar events for this plant
+      await storage.deleteCalendarEventsByPlant(req.params.id);
+      
+      // Generate new calendar events from today forward
+      const today = new Date();
+      
+      // Filter schedule to start from the new stage
+      const stageOrder = ["seed", "seedling", "vegetative", "flowering", "harvest"];
+      const startIndex = stageOrder.indexOf(nextStage);
+      
+      let filteredSchedule = CANNABIS_SCHEDULE.complete;
+      if (startIndex !== -1) {
+        filteredSchedule = CANNABIS_SCHEDULE.complete.filter(item => {
+          const itemStageIndex = stageOrder.indexOf(item.stage);
+          return itemStageIndex >= startIndex;
+        });
+      }
+      
+      // Calculate minimum offset to normalize dates
+      const minOffset = filteredSchedule.length > 0 ? Math.min(...filteredSchedule.map(item => item.offset)) : 0;
+      
+      // Create new calendar events
+      for (const preset of filteredSchedule) {
+        const eventDate = new Date(today);
+        const normalizedOffset = preset.offset - minOffset;
+        eventDate.setDate(eventDate.getDate() + normalizedOffset);
+        
+        await storage.createCalendarEvent({
+          plantId: req.params.id,
+          date: eventDate.toISOString().split('T')[0],
+          task: preset.task,
+          completed: false,
+        });
+      }
+      
+      res.json({ 
+        plant: updatedPlant, 
+        message: `Advanced to ${nextStage} stage and regenerated calendar` 
+      });
+    } catch (error) {
+      console.error("Stage flip error:", error);
+      res.status(500).json({ error: "Failed to flip plant stage" });
     }
   });
 

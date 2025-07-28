@@ -59,6 +59,32 @@ export default function PlantDetail() {
     },
   });
 
+  const flipStageMutation = useMutation({
+    mutationFn: async () => {
+      const response = await fetch(`/api/plants/${id}/flip-stage`, {
+        method: "POST",
+      });
+      if (!response.ok) throw new Error("Failed to flip plant stage");
+      return response.json();
+    },
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ["/api/plants"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/plants", id] });
+      queryClient.invalidateQueries({ queryKey: ["/api/calendar-events"] });
+      toast({
+        title: "Stage Advanced",
+        description: data.message || "Plant stage advanced successfully!",
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to advance plant stage.",
+        variant: "destructive",
+      });
+    },
+  });
+
   if (plantLoading) {
     return (
       <div className="min-h-screen bg-gray-900 flex items-center justify-center">
@@ -100,6 +126,13 @@ export default function PlantDetail() {
     return event.date === today && !event.completed;
   });
 
+  const getNextStage = (currentStage: string) => {
+    const stages = ["seed", "vegetative", "flowering", "harvest"];
+    const currentIndex = stages.indexOf(currentStage);
+    if (currentIndex === -1 || currentIndex === stages.length - 1) return currentStage;
+    return stages[currentIndex + 1];
+  };
+
   return (
     <div className="min-h-screen bg-gray-900 text-white">
       {/* Header */}
@@ -132,6 +165,17 @@ export default function PlantDetail() {
                 plantId={plant.id} 
                 currentColor={plant.color || "#22c55e"} 
               />
+              {plant.stage !== 'harvest' && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => flipStageMutation.mutate()}
+                  disabled={flipStageMutation.isPending}
+                  className="bg-plant-green-600 hover:bg-plant-green-700 border-plant-green-500 text-white"
+                >
+                  {flipStageMutation.isPending ? 'Advancing...' : `Flip to ${getNextStage(plant.stage)}`}
+                </Button>
+              )}
               <Button
                 variant="destructive"
                 size="sm"
