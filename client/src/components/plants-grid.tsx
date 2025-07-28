@@ -56,7 +56,10 @@ export default function PlantsGrid({ plants }: PlantsGridProps) {
                 <Card className="bg-gray-700 hover:bg-gray-600 transition-colors duration-200 cursor-pointer border-gray-600">
                   <CardContent className="p-4">
                     <div className="flex items-center space-x-3 mb-3">
-                      <div className="w-12 h-12 bg-plant-green-600 rounded-lg flex items-center justify-center">
+                      <div 
+                        className="w-12 h-12 rounded-lg flex items-center justify-center"
+                        style={{ backgroundColor: plant.color || "#22c55e" }}
+                      >
                         <span className="text-white text-lg">{stageIcon}</span>
                       </div>
                       <div>

@@ -6,14 +6,14 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Input } from "@/components/ui/input";
 import { ChevronLeft, ChevronRight, Calendar } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import type { CalendarEvent } from "@shared/schema";
+import type { CalendarEvent, Plant } from "@shared/schema";
 
 interface CareCalendarProps {
   plantId?: string;
 }
 
 // Editable Task Item Component
-function EditableTaskItem({ event }: { event: CalendarEvent }) {
+function EditableTaskItem({ event, plantColor }: { event: CalendarEvent; plantColor: string }) {
   const [isEditing, setIsEditing] = useState(false);
   const [editText, setEditText] = useState(event.task);
   const queryClient = useQueryClient();
@@ -72,12 +72,12 @@ function EditableTaskItem({ event }: { event: CalendarEvent }) {
       className={`text-xs mb-1 p-1 rounded cursor-pointer ${
         event.completed 
           ? "bg-gray-600 text-gray-400 line-through" 
-          : event.task.toLowerCase().includes('water') 
-            ? "bg-blue-600 text-white"
-            : event.task.toLowerCase().includes('nutrients')
-              ? "bg-amber-600 text-white"
-              : "bg-plant-green-600 text-white"
+          : "text-white"
       }`}
+      style={{
+        backgroundColor: event.completed ? undefined : `${plantColor}33`, // Plant color with transparency
+        borderLeft: event.completed ? undefined : `3px solid ${plantColor}`, // Solid color border
+      }}
     >
       {isEditing ? (
         <input
@@ -124,9 +124,19 @@ export default function CareCalendar({ plantId }: CareCalendarProps) {
     queryKey: ["/api/calendar-events"],
   });
 
+  const { data: plants = [] } = useQuery<Plant[]>({
+    queryKey: ["/api/plants"],
+  });
+
   const events = plantId 
     ? allEvents.filter(event => event.plantId === plantId)
     : allEvents;
+
+  // Create a map of plant colors for quick lookup
+  const plantColors = plants.reduce((acc: Record<string, string>, plant: Plant) => {
+    acc[plant.id] = plant.color || "#22c55e";
+    return acc;
+  }, {});
 
   const generateScheduleMutation = useMutation({
     mutationFn: async ({ stage, startDate }: { stage: string; startDate: string }) => {
@@ -288,7 +298,11 @@ export default function CareCalendar({ plantId }: CareCalendarProps) {
                   <div className="text-white font-medium mb-1 text-center">{day.day}</div>
                   <div className="flex-1 overflow-y-auto">
                     {day.events.map((event) => (
-                      <EditableTaskItem key={event.id} event={event} />
+                      <EditableTaskItem 
+                        key={event.id} 
+                        event={event} 
+                        plantColor={plantColors[event.plantId] || "#22c55e"} 
+                      />
                     ))}
                   </div>
                 </>

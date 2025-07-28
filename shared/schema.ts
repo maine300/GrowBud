@@ -9,6 +9,7 @@ export const plants = pgTable("plants", {
   strainType: text("strain_type").notNull(),
   location: text("location").notNull(),
   stage: text("stage").notNull(),
+  color: text("color").notNull().default("#22c55e"), // Default green color
   plantedDate: timestamp("planted_date").notNull().defaultNow(),
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });

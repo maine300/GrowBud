@@ -9,6 +9,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import CameraSection from "@/components/camera-section";
 import CareCalendar from "@/components/care-calendar";
 import FeedingScheduleUpload from "@/components/feeding-schedule-upload";
+import PlantColorPicker from "@/components/plant-color-picker";
 import { useToast } from "@/hooks/use-toast";
 import type { Plant, Photo, CalendarEvent } from "@shared/schema";
 
@@ -125,6 +126,10 @@ export default function PlantDetail() {
               </div>
             </div>
             <div className="flex items-center space-x-2">
+              <PlantColorPicker 
+                plantId={plant.id} 
+                currentColor={plant.color || "#22c55e"} 
+              />
               <Button
                 variant="destructive"
                 size="sm"
