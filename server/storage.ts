@@ -219,7 +219,7 @@ export class DatabaseStorage implements IStorage {
 
   async deleteFeedingSchedule(id: string): Promise<boolean> {
     const result = await db.delete(feedingSchedules).where(eq(feedingSchedules.id, id));
-    return result.rowCount > 0;
+    return (result.rowCount || 0) > 0;
   }
 
   // Device States

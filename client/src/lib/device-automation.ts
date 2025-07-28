@@ -167,9 +167,11 @@ export function calculateRecommendedIntensity(
  */
 export function getLightSchedule(stage: string): { hoursOn: number; reason: string } {
   const schedules = {
-    seed: { hoursOn: 18, reason: "18/6 cycle for seedling development" },
+    seed: { hoursOn: 16, reason: "16/8 cycle for seed development" },
+    seedling: { hoursOn: 18, reason: "18/6 cycle for seedling development" },
     vegetative: { hoursOn: 18, reason: "18/6 cycle for vegetative growth" },
     flowering: { hoursOn: 12, reason: "12/12 cycle to trigger flowering" },
+    harvest: { hoursOn: 0, reason: "No lighting needed during harvest" },
   };
 
   const stageKey = stage.toLowerCase() as keyof typeof schedules;

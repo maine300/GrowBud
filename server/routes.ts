@@ -226,12 +226,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ error: "Plant not found" });
       }
 
+      console.log("Current plant stage:", plant.stage);
+      
       // Determine next stage
-      const stageProgression = ["seed", "vegetative", "flowering", "harvest"];
+      const stageProgression = ["seed", "seedling", "vegetative", "flowering", "harvest"];
       const currentIndex = stageProgression.indexOf(plant.stage);
       
-      if (currentIndex === -1 || currentIndex === stageProgression.length - 1) {
-        return res.status(400).json({ error: "Cannot advance stage further" });
+      console.log("Current stage index:", currentIndex, "Total stages:", stageProgression.length);
+      
+      if (currentIndex === -1) {
+        return res.status(400).json({ error: `Invalid current stage: ${plant.stage}` });
+      }
+      
+      if (currentIndex === stageProgression.length - 1) {
+        return res.status(400).json({ error: "Plant is already at harvest stage" });
       }
 
       const nextStage = stageProgression[currentIndex + 1];
