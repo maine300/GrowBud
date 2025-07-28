@@ -169,50 +169,48 @@ export default function PlantDetail() {
           </Card>
         </div>
 
-        {/* Photo and Calendar Section */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
-          <div className="lg:col-span-2">
-            <CameraSection plantId={plant.id} photos={photos} />
-          </div>
-          <div className="space-y-6">
-            <div className="h-[48rem]">
-              <CareCalendar plantId={plant.id} />
-            </div>
-            
-            {/* Feeding Schedule Upload */}
-            <Card className="bg-gray-800 border-gray-700">
-              <CardHeader>
-                <CardTitle className="text-lg font-semibold text-white flex items-center">
-                  <Upload className="w-5 h-5 mr-2" />
-                  Feeding Schedules
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <Dialog open={showFeedingUpload} onOpenChange={setShowFeedingUpload}>
-                  <DialogTrigger asChild>
-                    <Button 
-                      className="w-full bg-plant-green-600 hover:bg-plant-green-700"
-                      onClick={() => setShowFeedingUpload(true)}
-                    >
-                      <Upload className="w-4 h-4 mr-2" />
-                      Upload Schedule
-                    </Button>
-                  </DialogTrigger>
-                  <DialogContent className="max-w-2xl">
-                    <DialogHeader>
-                      <DialogTitle>Upload Feeding Schedule</DialogTitle>
-                    </DialogHeader>
-                    <FeedingScheduleUpload onClose={() => setShowFeedingUpload(false)} />
-                  </DialogContent>
-                </Dialog>
-                
-                <p className="text-sm text-gray-400 mt-2">
-                  Upload Excel, PDF, or CSV feeding schedules with color-coded growth stages
-                </p>
-              </CardContent>
-            </Card>
-          </div>
+        {/* Photo Section */}
+        <div className="mb-8">
+          <CameraSection plantId={plant.id} photos={photos} />
         </div>
+
+        {/* Calendar Section - Full Width */}
+        <div className="mb-8 h-[48rem]">
+          <CareCalendar plantId={plant.id} />
+        </div>
+
+        {/* Feeding Schedule Upload */}
+        <Card className="bg-gray-800 border-gray-700 mb-8">
+          <CardHeader>
+            <CardTitle className="text-lg font-semibold text-white flex items-center">
+              <Upload className="w-5 h-5 mr-2" />
+              Feeding Schedules
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <Dialog open={showFeedingUpload} onOpenChange={setShowFeedingUpload}>
+              <DialogTrigger asChild>
+                <Button 
+                  className="w-full bg-plant-green-600 hover:bg-plant-green-700"
+                  onClick={() => setShowFeedingUpload(true)}
+                >
+                  <Upload className="w-4 h-4 mr-2" />
+                  Upload Schedule
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="max-w-2xl">
+                <DialogHeader>
+                  <DialogTitle>Upload Feeding Schedule</DialogTitle>
+                </DialogHeader>
+                <FeedingScheduleUpload onClose={() => setShowFeedingUpload(false)} />
+              </DialogContent>
+            </Dialog>
+            
+            <p className="text-sm text-gray-400 mt-2">
+              Upload Excel, PDF, or CSV feeding schedules with color-coded growth stages
+            </p>
+          </CardContent>
+        </Card>
 
         {/* Today's Tasks */}
         {todaysTasks.length > 0 && (
