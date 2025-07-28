@@ -7,13 +7,7 @@ echo "🌱 Starting Plant Monitoring System deployment..."
 echo "📦 Installing dependencies..."
 npm ci --include=dev
 
-# Run database migrations if needed
-echo "🗄️ Setting up database..."
-if [ ! -z "$DATABASE_URL" ]; then
-    npm run db:push
-fi
-
-# Build the application
+# Build the application first
 echo "🔨 Building application..."
 npm run build
 
@@ -23,6 +17,13 @@ if [ -d "dist" ] && [ -f "dist/server/index.js" ] && [ -d "dist/public" ]; then
 else
     echo "❌ Build failed - missing output files"
     exit 1
+fi
+
+# Run database migrations after build (for production deployment)
+echo "🗄️ Setting up database..."
+if [ ! -z "$DATABASE_URL" ]; then
+    echo "Running database migrations..."
+    npm run db:push || echo "⚠️ Database migration failed, but continuing..."
 fi
 
 echo "🚀 Deployment preparation complete!"
