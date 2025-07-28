@@ -11,6 +11,7 @@ export const plants = pgTable("plants", {
   stage: text("stage").notNull(),
   color: text("color").notNull().default("#22c55e"), // Default green color
   deviceGroup: text("device_group"), // For grouping plants that share devices/sensors
+  currentHeight: integer("current_height"), // Height in centimeters
   plantedDate: timestamp("planted_date").notNull().defaultNow(),
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });

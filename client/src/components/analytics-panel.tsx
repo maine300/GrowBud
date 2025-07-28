@@ -51,6 +51,20 @@ export default function AnalyticsPanel({ plants }: AnalyticsPanelProps) {
         }, 0) / plants.length)
       : 0;
 
+    // Calculate real growth rate from height data
+    const plantsWithHeight = plants.filter(p => p.currentHeight && p.currentHeight > 0);
+    const realGrowthRate = plantsWithHeight.length > 0 
+      ? plantsWithHeight.reduce((sum, plant) => {
+          const age = Math.floor((Date.now() - new Date(plant.plantedDate).getTime()) / (1000 * 60 * 60 * 24));
+          return sum + (age > 0 ? (plant.currentHeight! / age) : 0);
+        }, 0) / plantsWithHeight.length
+      : 0;
+
+    // Average height across all plants
+    const averageHeight = plants.length > 0 
+      ? Math.round(plants.reduce((sum, plant) => sum + (plant.currentHeight || 0), 0) / plants.length)
+      : 0;
+
     const estimatedHarvest = plants
       .filter(p => p.stage === "flowering")
       .map(plant => {
@@ -65,7 +79,8 @@ export default function AnalyticsPanel({ plants }: AnalyticsPanelProps) {
       totalPlants,
       activeFlowering,
       averageAge,
-      growthRate: "2.3 cm/week",
+      averageHeight,
+      growthRate: realGrowthRate > 0 ? `${realGrowthRate.toFixed(1)} cm/day` : "No height data",
       harvestDate: estimatedHarvest 
         ? estimatedHarvest.toLocaleDateString('default', { month: 'long', day: 'numeric', year: 'numeric' })
         : "No flowering plants",
@@ -98,6 +113,10 @@ export default function AnalyticsPanel({ plants }: AnalyticsPanelProps) {
           <div className="flex items-center justify-between">
             <span className="text-gray-400">Average Age</span>
             <span className="text-white font-medium">{analytics.averageAge} days</span>
+          </div>
+          <div className="flex items-center justify-between">
+            <span className="text-gray-400">Average Height</span>
+            <span className="text-white font-medium">{analytics.averageHeight} cm</span>
           </div>
           <div className="flex items-center justify-between">
             <span className="text-gray-400">Average Growth Rate</span>

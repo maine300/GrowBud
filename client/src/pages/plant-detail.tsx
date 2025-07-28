@@ -12,6 +12,7 @@ import FeedingScheduleUpload from "@/components/feeding-schedule-upload";
 import PlantColorPicker from "@/components/plant-color-picker";
 import DeviceControlsPlant from "@/components/device-controls-plant";
 import SensorDataPlant from "@/components/sensor-data-plant";
+import PlantHeightTracker from "@/components/plant-height-tracker";
 import { useToast } from "@/hooks/use-toast";
 import type { Plant, Photo, CalendarEvent } from "@shared/schema";
 
@@ -232,7 +233,10 @@ export default function PlantDetail() {
 
         {/* Device Controls and Sensors */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-          <DeviceControlsPlant plantId={plant.id} plant={plant} />
+          <div className="space-y-6">
+            <PlantHeightTracker plant={plant} />
+            <DeviceControlsPlant plantId={plant.id} plant={plant} />
+          </div>
           <SensorDataPlant plantId={plant.id} plant={plant} />
         </div>
 
