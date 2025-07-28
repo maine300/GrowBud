@@ -437,19 +437,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/devices", async (req, res) => {
     try {
-      const { plantId, deviceGroup, deviceType, name, isOn = false } = req.body;
+      const { plantId, deviceGroup, deviceType, name, isOn = false, autoMode = false, wattage, distanceFromPlant } = req.body;
       
       if (!deviceType || !name) {
         return res.status(400).json({ error: "Device type and name are required" });
       }
 
-      const device = await storage.createDeviceState({
+      const deviceData: any = {
         plantId,
         deviceGroup,
         deviceType,
         name,
         isOn,
-      });
+        autoMode,
+      };
+      
+      if (wattage !== undefined) deviceData.wattage = wattage;
+      if (distanceFromPlant !== undefined) deviceData.distanceFromPlant = distanceFromPlant;
+
+      const device = await storage.createDeviceState(deviceData);
       
       res.status(201).json(device);
     } catch (error) {

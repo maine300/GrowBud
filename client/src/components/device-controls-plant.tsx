@@ -1,13 +1,16 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Switch } from "@/components/ui/switch";
-import { Power, Plus, Settings, Users } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Power, Plus, Settings, Users, Zap, Lightbulb, Info } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { getDeviceAutomation, calculateLightDistance } from "@/lib/device-automation";
 import type { Plant } from "@shared/schema";
 
 interface DeviceControlsPlantProps {
@@ -17,19 +20,24 @@ interface DeviceControlsPlantProps {
 
 interface Device {
   id: string;
-  plantId?: string;
-  deviceGroup?: string;
+  plantId: string | null;
+  deviceGroup: string | null;
   deviceType: string;
   name: string;
   isOn: boolean;
-  lastToggled: string;
+  autoMode: boolean;
+  wattage: number | null;
+  distanceFromPlant: number | null;
+  lastToggled: Date;
 }
 
 export default function DeviceControlsPlant({ plantId, plant }: DeviceControlsPlantProps) {
   const [showAddDevice, setShowAddDevice] = useState(false);
   const [showGroupSettings, setShowGroupSettings] = useState(false);
+  const [showDeviceSettings, setShowDeviceSettings] = useState<string | null>(null);
   const [newDeviceType, setNewDeviceType] = useState("");
   const [newDeviceName, setNewDeviceName] = useState("");
+  const [newWattage, setNewWattage] = useState("");
   const [newGroupName, setNewGroupName] = useState(plant.deviceGroup || "");
   const queryClient = useQueryClient();
   const { toast } = useToast();
@@ -46,37 +54,65 @@ export default function DeviceControlsPlant({ plantId, plant }: DeviceControlsPl
     queryKey: ["/api/plants"],
   });
 
+  const { data: sensorDataArray = [] } = useQuery<any[]>({
+    queryKey: ["/api/sensor-data"],
+  });
+
+  const sensorData = sensorDataArray.find((data: any) => 
+    data.plantId === plantId || 
+    (data.deviceGroup && data.deviceGroup === plant.deviceGroup)
+  ) || sensorDataArray[0];
+
   const plantsInGroup = allPlants.filter(p => 
     p.deviceGroup && p.deviceGroup === plant.deviceGroup && p.id !== plantId
   );
 
   const toggleDeviceMutation = useMutation({
-    mutationFn: async ({ deviceId, isOn }: { deviceId: string; isOn: boolean }) => {
+    mutationFn: async ({ deviceId, isOn, autoMode }: { deviceId: string; isOn?: boolean; autoMode?: boolean }) => {
+      const updateData: any = {};
+      if (isOn !== undefined) updateData.isOn = isOn;
+      if (autoMode !== undefined) updateData.autoMode = autoMode;
+      
       const response = await fetch(`/api/devices/${deviceId}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ isOn }),
+        body: JSON.stringify(updateData),
       });
-      if (!response.ok) throw new Error("Failed to toggle device");
+      if (!response.ok) throw new Error("Failed to update device");
       return response.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/devices"] });
+      toast({
+        title: "Device Updated",
+        description: "Device state has been updated.",
+      });
+    },
+    onError: () => {
+      toast({
+        title: "Error",
+        description: "Failed to update device.",
+        variant: "destructive",
+      });
     },
   });
 
   const addDeviceMutation = useMutation({
-    mutationFn: async ({ deviceType, name }: { deviceType: string; name: string }) => {
+    mutationFn: async ({ deviceType, name, wattage }: { deviceType: string; name: string; wattage?: number }) => {
+      const deviceData: any = {
+        plantId,
+        deviceGroup: plant.deviceGroup,
+        deviceType,
+        name,
+        isOn: false,
+        autoMode: false,
+      };
+      if (wattage) deviceData.wattage = wattage;
+      
       const response = await fetch("/api/devices", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          plantId,
-          deviceGroup: plant.deviceGroup,
-          deviceType,
-          name,
-          isOn: false,
-        }),
+        body: JSON.stringify(deviceData),
       });
       if (!response.ok) throw new Error("Failed to add device");
       return response.json();
@@ -86,9 +122,34 @@ export default function DeviceControlsPlant({ plantId, plant }: DeviceControlsPl
       setShowAddDevice(false);
       setNewDeviceType("");
       setNewDeviceName("");
+      setNewWattage("");
       toast({
         title: "Device added",
         description: "New device has been added successfully.",
+      });
+    },
+  });
+
+  const updateDeviceSettingsMutation = useMutation({
+    mutationFn: async ({ deviceId, wattage, distanceFromPlant }: { deviceId: string; wattage?: number; distanceFromPlant?: number }) => {
+      const updateData: any = {};
+      if (wattage !== undefined) updateData.wattage = wattage;
+      if (distanceFromPlant !== undefined) updateData.distanceFromPlant = distanceFromPlant;
+      
+      const response = await fetch(`/api/devices/${deviceId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(updateData),
+      });
+      if (!response.ok) throw new Error("Failed to update device settings");
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/devices"] });
+      setShowDeviceSettings(null);
+      toast({
+        title: "Settings Updated",
+        description: "Device settings have been updated.",
       });
     },
   });
@@ -128,7 +189,12 @@ export default function DeviceControlsPlant({ plantId, plant }: DeviceControlsPl
 
   const handleAddDevice = () => {
     if (newDeviceType && newDeviceName) {
-      addDeviceMutation.mutate({ deviceType: newDeviceType, name: newDeviceName });
+      const wattage = newWattage ? parseInt(newWattage) : undefined;
+      addDeviceMutation.mutate({ 
+        deviceType: newDeviceType, 
+        name: newDeviceName,
+        wattage 
+      });
     }
   };
 
@@ -229,6 +295,22 @@ export default function DeviceControlsPlant({ plantId, plant }: DeviceControlsPl
                       className="bg-gray-700 border-gray-600 text-white"
                     />
                   </div>
+                  
+                  {newDeviceType === "light" && (
+                    <div>
+                      <label className="text-sm text-gray-400 mb-2 block">Wattage (Optional)</label>
+                      <Input
+                        type="number"
+                        value={newWattage}
+                        onChange={(e) => setNewWattage(e.target.value)}
+                        placeholder="e.g., 150, 300, 600"
+                        className="bg-gray-700 border-gray-600 text-white"
+                      />
+                      <p className="text-xs text-gray-500 mt-1">
+                        Used to calculate recommended distance from plant
+                      </p>
+                    </div>
+                  )}
                   <Button
                     onClick={handleAddDevice}
                     disabled={!newDeviceType || !newDeviceName || addDeviceMutation.isPending}
@@ -266,31 +348,134 @@ export default function DeviceControlsPlant({ plantId, plant }: DeviceControlsPl
             </Button>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {devices.map((device) => (
-              <div
-                key={device.id}
-                className="bg-gray-700 rounded-lg p-4 flex items-center justify-between"
-              >
-                <div className="flex items-center space-x-3">
-                  <span className="text-2xl">{getDeviceIcon(device.deviceType)}</span>
-                  <div>
-                    <h4 className="text-white font-medium">{device.name}</h4>
-                    <p className="text-gray-400 text-sm capitalize">{device.deviceType}</p>
-                    {device.deviceGroup && device.plantId !== plantId && (
-                      <p className="text-blue-400 text-xs">Shared device</p>
+          <div className="space-y-4">
+            {devices.map((device) => {
+              const automation = getDeviceAutomation(device as any, plant, sensorData);
+              const distanceRec = device.deviceType === "light" && device.wattage 
+                ? calculateLightDistance(device.wattage, plant.stage)
+                : null;
+              
+              return (
+                <div key={device.id} className="bg-gray-700 rounded-lg p-4">
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="flex items-center space-x-3">
+                      <span className="text-2xl">{getDeviceIcon(device.deviceType)}</span>
+                      <div>
+                        <h4 className="text-white font-medium flex items-center gap-2">
+                          {device.name}
+                          {device.wattage && (
+                            <Badge variant="secondary" className="text-xs">
+                              {device.wattage}W
+                            </Badge>
+                          )}
+                        </h4>
+                        <p className="text-gray-400 text-sm capitalize">{device.deviceType}</p>
+                        {device.deviceGroup && device.plantId !== plantId && (
+                          <p className="text-blue-400 text-xs">Shared device</p>
+                        )}
+                      </div>
+                    </div>
+                    
+                    <div className="flex items-center space-x-2">
+                      {device.deviceType === "light" && (
+                        <Dialog open={showDeviceSettings === device.id} onOpenChange={(open) => setShowDeviceSettings(open ? device.id : null)}>
+                          <DialogTrigger asChild>
+                            <Button variant="ghost" size="sm">
+                              <Settings className="w-4 h-4" />
+                            </Button>
+                          </DialogTrigger>
+                          <DialogContent className="bg-gray-800 border-gray-700">
+                            <DialogHeader>
+                              <DialogTitle className="text-white">Light Settings - {device.name}</DialogTitle>
+                            </DialogHeader>
+                            <div className="space-y-4 mt-4">
+                              <div>
+                                <Label className="text-sm text-gray-400">Wattage</Label>
+                                <Input
+                                  type="number"
+                                  defaultValue={device.wattage || ""}
+                                  onBlur={(e) => {
+                                    const wattage = parseInt(e.target.value);
+                                    if (wattage && wattage !== device.wattage) {
+                                      updateDeviceSettingsMutation.mutate({ deviceId: device.id, wattage });
+                                    }
+                                  }}
+                                  className="bg-gray-700 border-gray-600 text-white"
+                                />
+                              </div>
+                              <div>
+                                <Label className="text-sm text-gray-400">Distance from Plant (cm)</Label>
+                                <Input
+                                  type="number"
+                                  defaultValue={device.distanceFromPlant || ""}
+                                  onBlur={(e) => {
+                                    const distance = parseInt(e.target.value);
+                                    if (distance && distance !== device.distanceFromPlant) {
+                                      updateDeviceSettingsMutation.mutate({ deviceId: device.id, distanceFromPlant: distance });
+                                    }
+                                  }}
+                                  className="bg-gray-700 border-gray-600 text-white"
+                                />
+                              </div>
+                              {distanceRec && (
+                                <div className="bg-blue-900/20 border border-blue-700 rounded p-3">
+                                  <div className="flex items-center gap-2 text-blue-400 text-sm">
+                                    <Info className="w-4 h-4" />
+                                    Recommended: {distanceRec.distance}cm
+                                  </div>
+                                  <p className="text-xs text-gray-400 mt-1">{distanceRec.reason}</p>
+                                </div>
+                              )}
+                            </div>
+                          </DialogContent>
+                        </Dialog>
+                      )}
+                      
+                      <div className="flex flex-col items-center space-y-1">
+                        <Switch
+                          checked={device.isOn}
+                          onCheckedChange={(isOn) =>
+                            toggleDeviceMutation.mutate({ deviceId: device.id, isOn, autoMode: false })
+                          }
+                          className="data-[state=checked]:bg-green-600"
+                          disabled={device.autoMode}
+                        />
+                        <span className="text-xs text-gray-400">Manual</span>
+                      </div>
+                      
+                      <div className="flex flex-col items-center space-y-1">
+                        <Switch
+                          checked={device.autoMode}
+                          onCheckedChange={(autoMode) => {
+                            const isOn = autoMode ? automation.shouldBeOn : device.isOn;
+                            toggleDeviceMutation.mutate({ deviceId: device.id, autoMode, isOn });
+                          }}
+                          className="data-[state=checked]:bg-blue-600"
+                        />
+                        <span className="text-xs text-gray-400">Auto</span>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  {/* Automation Status */}
+                  <div className="bg-gray-800 rounded p-3">
+                    <div className="flex items-center justify-between mb-1">
+                      <span className="text-sm text-gray-400">Smart Automation</span>
+                      <div className="flex items-center gap-1">
+                        <div className={`w-2 h-2 rounded-full ${automation.shouldBeOn ? 'bg-green-500' : 'bg-red-500'}`} />
+                        <span className="text-xs text-gray-400">
+                          {automation.shouldBeOn ? 'ON' : 'OFF'}
+                        </span>
+                      </div>
+                    </div>
+                    <p className="text-xs text-gray-300">{automation.reason}</p>
+                    {automation.recommendation && (
+                      <p className="text-xs text-blue-400 mt-1">{automation.recommendation}</p>
                     )}
                   </div>
                 </div>
-                <Switch
-                  checked={device.isOn}
-                  onCheckedChange={(isOn) =>
-                    toggleDeviceMutation.mutate({ deviceId: device.id, isOn })
-                  }
-                  className="data-[state=checked]:bg-green-600"
-                />
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
       </CardContent>

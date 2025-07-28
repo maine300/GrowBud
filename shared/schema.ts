@@ -61,6 +61,9 @@ export const deviceStates = pgTable("device_states", {
   deviceType: text("device_type").notNull(), // light, fan, pump, heater, humidifier
   name: text("name").notNull().default("Device"), // Custom device name
   isOn: boolean("is_on").notNull().default(false),
+  autoMode: boolean("auto_mode").notNull().default(false), // Smart automation based on sensors
+  wattage: integer("wattage"), // For lights - used for distance calculations
+  distanceFromPlant: integer("distance_from_plant"), // cm, for lights
   lastToggled: timestamp("last_toggled").notNull().defaultNow(),
 });
 
