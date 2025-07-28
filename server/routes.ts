@@ -3,6 +3,7 @@ import { createServer, type Server } from "http";
 import multer from "multer";
 import path from "path";
 import fs from "fs";
+import { promises as fsPromises } from "fs";
 import { storage } from "./storage";
 import { 
   insertPlantSchema, 
@@ -300,6 +301,67 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(photos);
     } catch (error) {
       res.status(500).json({ error: "Failed to fetch photos" });
+    }
+  });
+
+  // Camera photo upload endpoint (for ESP32-CAM)
+  app.post("/api/photos/camera", async (req, res) => {
+    try {
+      const { plantId, deviceGroup, imageData, timestamp, autoCapture } = req.body;
+      
+      if (!imageData) {
+        return res.status(400).json({ error: "No image data provided" });
+      }
+      
+      if (!plantId) {
+        return res.status(400).json({ error: "Plant ID is required" });
+      }
+      
+      // Decode base64 image
+      const imageBuffer = Buffer.from(imageData, 'base64');
+      
+      // Generate filename
+      const timestamp_str = new Date().toISOString().replace(/[:.]/g, '-');
+      const filename = `camera_${plantId}_${timestamp_str}.jpg`;
+      const filepath = path.join('uploads', 'photos', filename);
+      
+      // Ensure directory exists
+      await fsPromises.mkdir(path.dirname(filepath), { recursive: true });
+      
+      // Save image file
+      await fsPromises.writeFile(filepath, imageBuffer);
+      
+      // Create photo record
+      const photo = await storage.createPhoto({
+        plantId,
+        filename,
+        filepath: `/uploads/photos/${filename}`,
+        caption: autoCapture ? "Auto-captured by ESP32-CAM" : "ESP32-CAM photo",
+      });
+      
+      console.log(`Camera photo saved: ${filename} for plant ${plantId}`);
+      res.json(photo);
+    } catch (error) {
+      console.error("Camera photo upload error:", error);
+      res.status(500).json({ error: "Failed to upload camera photo" });
+    }
+  });
+
+  // Manual camera trigger endpoint
+  app.post("/api/camera/trigger/:deviceGroup", async (req, res) => {
+    try {
+      const { deviceGroup } = req.params;
+      
+      // This endpoint can be used to trigger manual photo capture
+      // ESP32-CAM devices can poll this endpoint and capture when triggered
+      
+      res.json({ 
+        message: `Photo capture triggered for ${deviceGroup}`,
+        timestamp: new Date().toISOString(),
+        trigger: true
+      });
+    } catch (error) {
+      res.status(500).json({ error: "Failed to trigger camera" });
     }
   });
 
