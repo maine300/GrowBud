@@ -1,9 +1,11 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Link } from "wouter";
-import { ArrowLeft, Monitor, Palette, Layout, Save, GripVertical, ChevronUp, ChevronDown } from "lucide-react";
+import { ArrowLeft, Monitor, Palette, Layout, Save, GripVertical, ChevronUp, ChevronDown, Settings as SettingsIcon } from "lucide-react";
+import AdvancedSettings from "@/components/advanced-settings";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
@@ -139,7 +141,20 @@ export default function Settings() {
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <Tabs defaultValue="basic" className="space-y-6">
+          <TabsList className="grid w-full grid-cols-2 bg-gray-800 border-gray-700">
+            <TabsTrigger value="basic" className="data-[state=active]:bg-plant-green-600">
+              <Layout className="w-4 h-4 mr-2" />
+              Basic Settings
+            </TabsTrigger>
+            <TabsTrigger value="advanced" className="data-[state=active]:bg-plant-green-600">
+              <SettingsIcon className="w-4 h-4 mr-2" />
+              Advanced
+            </TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="basic" className="space-y-6">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Layout Settings */}
           <Card className="bg-gray-800 border-gray-700">
             <CardHeader>
@@ -337,7 +352,13 @@ export default function Settings() {
               </div>
             </CardContent>
           </Card>
-        </div>
+            </div>
+          </TabsContent>
+
+          <TabsContent value="advanced" className="space-y-6">
+            <AdvancedSettings />
+          </TabsContent>
+        </Tabs>
       </div>
     </div>
   );
