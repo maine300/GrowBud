@@ -40,6 +40,30 @@ Preferred communication style: Simple, everyday language.
 - **Render Deployment Support**: Fixed database configuration to support both Neon (Replit) and standard PostgreSQL (Render)
 - **Build Process Optimization**: Created comprehensive deployment script for production builds with proper dependency handling
 
+Date: July 29, 2025
+
+## Known Issues
+
+### ESM Module Resolution Error (July 29, 2025)
+**Issue**: Application fails to start with error `SyntaxError: The requested module 'vite' does not provide an export named 'defineConfig'`
+
+**Root Cause**: Node.js v20.19.3 + tsx compatibility issue with Vite's complex ESM export patterns. The `defineConfig` function exists in the Vite package but cannot be resolved through tsx's ESM loader.
+
+**Investigation Results**:
+- Vite package is properly installed and exports `defineConfig`
+- CommonJS imports work (`require('vite').defineConfig` exists)
+- ESM imports through tsx fail consistently across multiple versions
+- Issue persists with vite@4.5.0, vite@5.4.19, tsx@3.12.10, tsx@latest
+
+**Attempted Solutions**:
+- ✗ Version downgrades (vite@4.5.0, tsx@3.12.10)
+- ✗ Version upgrades (vite@latest, tsx@latest)
+- ✗ Alternative loaders (ts-node)
+- ✗ Module cache clearing
+- ✗ Dependency reinstallation
+
+**Current Status**: Blocked - requires environment-level fix or configuration file modifications
+
 Date: July 28, 2025
 
 ## System Architecture
