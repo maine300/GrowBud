@@ -1,23 +1,29 @@
-# Deploying to Render
+# Fixed Render Deployment Guide - SmartGrow Plant Monitor
 
-## Overview
-Your plant monitoring app can be deployed to Render as an alternative to Replit. Render offers free hosting with PostgreSQL database support.
+## What Was Fixed (Common Render Issues)
+
+**✅ Fixed Issues from Previous Deployment:**
+1. **Port Configuration**: Changed default port from 5000 to 10000 (Render requirement)
+2. **Build Process**: Created proper build commands that work on Render
+3. **Environment Variables**: Fixed NODE_ENV handling for production
+4. **Database Connection**: Proper DATABASE_URL configuration
+5. **Static File Serving**: Ensured production build serves correctly
 
 ## Prerequisites
 - GitHub account (to connect your repository)
 - Render account (free at render.com)
 
-## Step 1: Prepare Your Repository
+## Step 1: Push to GitHub (If Not Already Done)
 
-### Push to GitHub
+### Create Repository and Push Code
 1. Create a new repository on GitHub
-2. Push your plant monitoring code to the repository:
+2. Push your plant monitoring code:
 ```bash
 git init
 git add .
-git commit -m "Initial plant monitoring app"
+git commit -m "SmartGrow Plant Monitor - Fixed for Render"
 git branch -M main
-git remote add origin https://github.com/yourusername/your-repo-name.git
+git remote add origin https://github.com/yourusername/smartgrow-plant-monitor.git
 git push -u origin main
 ```
 
@@ -35,20 +41,24 @@ git push -u origin main
 
 ## Step 3: Web Service Setup
 
-### Create Web Service
+### Create Web Service (FIXED Configuration)
 1. Click "New +" → "Web Service"
 2. Connect your GitHub repository
-3. Configure settings:
-   - **Name**: `plant-monitoring-app`
+3. **IMPORTANT: Use these EXACT settings:**
+   - **Name**: `smartgrow-plant-monitor`
    - **Environment**: `Node`
+   - **Region**: `Oregon (US West)` (or closest to you)
    - **Branch**: `main`
+   - **Root Directory**: (leave blank)
    - **Build Command**: `npm install && npm run build`
-   - **Start Command**: `npm start`
+   - **Start Command**: `node dist/index.js`
+   - **Auto-Deploy**: Yes
 
-### Environment Variables
-Add these environment variables:
+### Environment Variables (CRITICAL)
+Add these environment variables in the Render dashboard:
 - **NODE_ENV**: `production`
-- **DATABASE_URL**: (use the connection string from your PostgreSQL database)
+- **DATABASE_URL**: (use the Internal Database URL from your PostgreSQL database - this is key!)
+- **PORT**: (Render will set this automatically, don't add manually)
 
 ## Step 4: Update ESP Code
 

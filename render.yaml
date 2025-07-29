@@ -1,21 +1,20 @@
 services:
   - type: web
-    name: plant-monitoring-app
+    name: smartgrow-plant-monitor
     env: node
-    plan: free
     buildCommand: npm install && npm run build
     startCommand: npm start
     envVars:
       - key: NODE_ENV
         value: production
-      - key: DATABASE_URL
-        fromDatabase:
-          name: plant-monitoring-db
-          property: connectionString
-    healthCheckPath: /api/plants
-
-databases:
-  - name: plant-monitoring-db
+      - key: PORT
+        fromService:
+          type: web
+          name: smartgrow-plant-monitor
+          property: port
+  - type: pserv
+    name: smartgrow-database
+    env: postgresql
+    plan: free
     databaseName: plant_monitoring
     user: plant_user
-    plan: free

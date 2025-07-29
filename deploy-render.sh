@@ -1,30 +1,16 @@
 #!/bin/bash
-# Render Deployment Script
+# Render Deployment Script for SmartGrow Plant Monitor
 
-echo "🚀 Preparing for Render deployment..."
+echo "Starting Render deployment process..."
 
-# Check if git is initialized
-if [ ! -d ".git" ]; then
-    echo "📁 Initializing git repository..."
-    git init
-    git branch -M main
-fi
+# Build the application
+echo "Building the application..."
+npm install
+npm run build
 
-# Add all files
-echo "📦 Adding files to git..."
-git add .
+# Set production environment
+export NODE_ENV=production
 
-# Commit changes
-echo "💾 Committing changes..."
-git commit -m "Prepare for Render deployment - $(date)"
-
-echo "✅ Ready for deployment!"
-echo ""
-echo "Next steps:"
-echo "1. Push to GitHub: git remote add origin YOUR_GITHUB_URL && git push -u origin main"
-echo "2. Create PostgreSQL database on Render"
-echo "3. Create web service on Render connected to your GitHub repo"
-echo "4. Set environment variables (NODE_ENV=production, DATABASE_URL=your_db_url)"
-echo "5. Update ESP code with new Render URL"
-echo ""
-echo "Your app will be available at: https://your-app-name.onrender.com"
+# Start the application
+echo "Starting the application..."
+npm start
