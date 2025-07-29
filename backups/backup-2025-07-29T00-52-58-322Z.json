@@ -1,0 +1,608 @@
+{
+  "plants": [
+    {
+      "id": "423d9def-f1b5-48e8-bc49-4a447c1be7b7",
+      "name": "Weather",
+      "strainType": "sativa",
+      "location": "outdoor",
+      "stage": "seed",
+      "color": "#8b5a2b",
+      "deviceGroup": "tent-1",
+      "currentHeight": null,
+      "plantedDate": "2025-07-28T20:57:57.054Z",
+      "createdAt": "2025-07-28T20:57:57.054Z"
+    },
+    {
+      "id": "95b107bf-bcff-4e2f-bd3c-ad1f2eb11d7c",
+      "name": "Gela",
+      "strainType": "sativa",
+      "location": "indoor",
+      "stage": "harvest",
+      "color": "#22c55e",
+      "deviceGroup": "tent-1",
+      "currentHeight": 0,
+      "plantedDate": "2025-07-28T20:52:27.296Z",
+      "createdAt": "2025-07-28T20:52:27.296Z"
+    }
+  ],
+  "photos": [],
+  "calendarEvents": [
+    {
+      "id": "fe194420-29a7-4f87-92f9-ca011ed5d517",
+      "plantId": "95b107bf-bcff-4e2f-bd3c-ad1f2eb11d7c",
+      "date": "2025-07-29",
+      "task": "Harvest when trichomes are 30% amber",
+      "completed": false,
+      "stage": "vegetative",
+      "potSize": null,
+      "createdAt": "2025-07-29T00:51:01.627Z"
+    },
+    {
+      "id": "140923bc-2ddd-41f2-975e-b15930f5bf9b",
+      "plantId": "95b107bf-bcff-4e2f-bd3c-ad1f2eb11d7c",
+      "date": "2025-07-30",
+      "task": "Wet trim fan leaves and sugar leaves",
+      "completed": false,
+      "stage": "vegetative",
+      "potSize": null,
+      "createdAt": "2025-07-29T00:51:01.694Z"
+    },
+    {
+      "id": "61a89e60-a0ca-4965-a00d-c17ddd040fa2",
+      "plantId": "95b107bf-bcff-4e2f-bd3c-ad1f2eb11d7c",
+      "date": "2025-07-31",
+      "task": "Hang dry in 60°F, 60% humidity, dark room",
+      "completed": false,
+      "stage": "vegetative",
+      "potSize": null,
+      "createdAt": "2025-07-29T00:51:01.752Z"
+    },
+    {
+      "id": "190d3522-0a84-4e22-8fd2-88fd675b44a5",
+      "plantId": "95b107bf-bcff-4e2f-bd3c-ad1f2eb11d7c",
+      "date": "2025-08-06",
+      "task": "Check drying - stems should snap, not bend",
+      "completed": false,
+      "stage": "vegetative",
+      "potSize": null,
+      "createdAt": "2025-07-29T00:51:01.811Z"
+    },
+    {
+      "id": "aaf8e36d-4536-46e5-8d14-4c7e7eaff85b",
+      "plantId": "95b107bf-bcff-4e2f-bd3c-ad1f2eb11d7c",
+      "date": "2025-08-08",
+      "task": "Begin curing in airtight jars",
+      "completed": false,
+      "stage": "vegetative",
+      "potSize": null,
+      "createdAt": "2025-07-29T00:51:01.875Z"
+    },
+    {
+      "id": "4ea6eb81-4f49-498d-84c9-e6f815acae55",
+      "plantId": "95b107bf-bcff-4e2f-bd3c-ad1f2eb11d7c",
+      "date": "2025-08-15",
+      "task": "Burp jars daily for first week of cure",
+      "completed": false,
+      "stage": "vegetative",
+      "potSize": null,
+      "createdAt": "2025-07-29T00:51:01.933Z"
+    },
+    {
+      "id": "9f9d9ff0-fcdc-4c57-8d6d-8aee3cf2fae5",
+      "plantId": "95b107bf-bcff-4e2f-bd3c-ad1f2eb11d7c",
+      "date": "2025-08-22",
+      "task": "Burp jars every 2-3 days",
+      "completed": false,
+      "stage": "vegetative",
+      "potSize": null,
+      "createdAt": "2025-07-29T00:51:01.992Z"
+    },
+    {
+      "id": "a52e06a3-57ab-4d3e-a84d-d9a685814080",
+      "plantId": "95b107bf-bcff-4e2f-bd3c-ad1f2eb11d7c",
+      "date": "2025-09-05",
+      "task": "Optimal cure complete",
+      "completed": false,
+      "stage": "vegetative",
+      "potSize": null,
+      "createdAt": "2025-07-29T00:51:02.051Z"
+    },
+    {
+      "id": "a7a47a8a-59b4-47b1-97d3-85deb2692803",
+      "plantId": "423d9def-f1b5-48e8-bc49-4a447c1be7b7",
+      "date": "2025-07-28",
+      "task": "Germinate seeds in paper towel method",
+      "completed": false,
+      "stage": "vegetative",
+      "potSize": null,
+      "createdAt": "2025-07-28T20:58:08.698Z"
+    },
+    {
+      "id": "21f8f115-e473-49b1-a514-13f5caf93e7e",
+      "plantId": "423d9def-f1b5-48e8-bc49-4a447c1be7b7",
+      "date": "2025-07-30",
+      "task": "Check for taproot emergence",
+      "completed": false,
+      "stage": "vegetative",
+      "potSize": null,
+      "createdAt": "2025-07-28T20:58:08.758Z"
+    },
+    {
+      "id": "c34dcdee-ac8b-4468-99a1-5b345ea91fe9",
+      "plantId": "423d9def-f1b5-48e8-bc49-4a447c1be7b7",
+      "date": "2025-08-02",
+      "task": "Plant sprouted seeds in starter medium",
+      "completed": false,
+      "stage": "vegetative",
+      "potSize": null,
+      "createdAt": "2025-07-28T20:58:08.818Z"
+    },
+    {
+      "id": "1e04d1dd-7622-4eba-9f52-7548109cf38a",
+      "plantId": "423d9def-f1b5-48e8-bc49-4a447c1be7b7",
+      "date": "2025-08-04",
+      "task": "First watering - pH 6.0-6.5, light misting",
+      "completed": false,
+      "stage": "vegetative",
+      "potSize": null,
+      "createdAt": "2025-07-28T20:58:08.877Z"
+    },
+    {
+      "id": "094eef60-1038-408c-93d6-62b26663c873",
+      "plantId": "423d9def-f1b5-48e8-bc49-4a447c1be7b7",
+      "date": "2025-08-07",
+      "task": "Monitor for first true leaves",
+      "completed": false,
+      "stage": "vegetative",
+      "potSize": null,
+      "createdAt": "2025-07-28T20:58:08.935Z"
+    },
+    {
+      "id": "49f50249-4d43-4b06-8b93-b8e73fb0bb78",
+      "plantId": "423d9def-f1b5-48e8-bc49-4a447c1be7b7",
+      "date": "2025-08-11",
+      "task": "Begin weak nutrients (200-400 PPM)",
+      "completed": false,
+      "stage": "vegetative",
+      "potSize": null,
+      "createdAt": "2025-07-28T20:58:08.995Z"
+    },
+    {
+      "id": "b4758070-c5cf-4bd6-946f-95a2bb6b841d",
+      "plantId": "423d9def-f1b5-48e8-bc49-4a447c1be7b7",
+      "date": "2025-08-14",
+      "task": "Increase light to 18/6 schedule",
+      "completed": false,
+      "stage": "vegetative",
+      "potSize": null,
+      "createdAt": "2025-07-28T20:58:09.054Z"
+    },
+    {
+      "id": "45ba22a5-f552-4ba5-9a10-cd2bee2a8404",
+      "plantId": "423d9def-f1b5-48e8-bc49-4a447c1be7b7",
+      "date": "2025-08-18",
+      "task": "Transplant to 1-gallon containers",
+      "completed": false,
+      "stage": "vegetative",
+      "potSize": null,
+      "createdAt": "2025-07-28T20:58:09.114Z"
+    },
+    {
+      "id": "25f1eec7-893b-45ba-8e2b-02f97c6825c4",
+      "plantId": "423d9def-f1b5-48e8-bc49-4a447c1be7b7",
+      "date": "2025-08-21",
+      "task": "Water/feed cycle - nutrients 400-600 PPM",
+      "completed": false,
+      "stage": "vegetative",
+      "potSize": null,
+      "createdAt": "2025-07-28T20:58:09.173Z"
+    },
+    {
+      "id": "a052a4e5-b804-43ba-b9ad-187de4713c44",
+      "plantId": "423d9def-f1b5-48e8-bc49-4a447c1be7b7",
+      "date": "2025-08-25",
+      "task": "First topping for bushier growth",
+      "completed": false,
+      "stage": "vegetative",
+      "potSize": null,
+      "createdAt": "2025-07-28T20:58:09.233Z"
+    },
+    {
+      "id": "2b6775a0-3740-41fa-870b-77ac1c94e451",
+      "plantId": "423d9def-f1b5-48e8-bc49-4a447c1be7b7",
+      "date": "2025-08-28",
+      "task": "Monitor for pest issues - neem oil spray",
+      "completed": false,
+      "stage": "vegetative",
+      "potSize": null,
+      "createdAt": "2025-07-28T20:58:09.292Z"
+    },
+    {
+      "id": "5c9057ef-4ed4-4ad1-b3e9-f4f6a96c493a",
+      "plantId": "423d9def-f1b5-48e8-bc49-4a447c1be7b7",
+      "date": "2025-09-01",
+      "task": "Increase nutrients to 600-800 PPM",
+      "completed": false,
+      "stage": "vegetative",
+      "potSize": null,
+      "createdAt": "2025-07-28T20:58:09.354Z"
+    },
+    {
+      "id": "53c5e295-9472-475b-ae80-949c0acf99cd",
+      "plantId": "423d9def-f1b5-48e8-bc49-4a447c1be7b7",
+      "date": "2025-09-04",
+      "task": "LST (Low Stress Training) begins",
+      "completed": false,
+      "stage": "vegetative",
+      "potSize": null,
+      "createdAt": "2025-07-28T20:58:09.412Z"
+    },
+    {
+      "id": "2a475f18-2eee-40f3-b65e-345af699df00",
+      "plantId": "423d9def-f1b5-48e8-bc49-4a447c1be7b7",
+      "date": "2025-09-08",
+      "task": "Transplant to final containers (3-5 gallon)",
+      "completed": false,
+      "stage": "vegetative",
+      "potSize": null,
+      "createdAt": "2025-07-28T20:58:09.471Z"
+    },
+    {
+      "id": "030b758f-ecb7-487e-8828-16ac2ce01e66",
+      "plantId": "423d9def-f1b5-48e8-bc49-4a447c1be7b7",
+      "date": "2025-09-11",
+      "task": "Full strength veg nutrients (800-1000 PPM)",
+      "completed": false,
+      "stage": "vegetative",
+      "potSize": null,
+      "createdAt": "2025-07-28T20:58:09.532Z"
+    },
+    {
+      "id": "d0cdcc7e-6f08-400f-8b8e-20755f811f5b",
+      "plantId": "423d9def-f1b5-48e8-bc49-4a447c1be7b7",
+      "date": "2025-09-15",
+      "task": "Defoliation - remove lower fan leaves",
+      "completed": false,
+      "stage": "vegetative",
+      "potSize": null,
+      "createdAt": "2025-07-28T20:58:09.591Z"
+    },
+    {
+      "id": "a790056a-9d5e-4422-98e7-b0b75952348f",
+      "plantId": "423d9def-f1b5-48e8-bc49-4a447c1be7b7",
+      "date": "2025-09-18",
+      "task": "SCROG setup if using (Screen of Green)",
+      "completed": false,
+      "stage": "vegetative",
+      "potSize": null,
+      "createdAt": "2025-07-28T20:58:09.651Z"
+    },
+    {
+      "id": "1991684f-fd10-442c-aa42-838baaf8046a",
+      "plantId": "423d9def-f1b5-48e8-bc49-4a447c1be7b7",
+      "date": "2025-09-22",
+      "task": "Final vegetative feeding",
+      "completed": false,
+      "stage": "vegetative",
+      "potSize": null,
+      "createdAt": "2025-07-28T20:58:09.710Z"
+    },
+    {
+      "id": "ecf4117a-df60-42bd-88da-3c9cd66dd269",
+      "plantId": "423d9def-f1b5-48e8-bc49-4a447c1be7b7",
+      "date": "2025-09-24",
+      "task": "Switch to 12/12 light cycle",
+      "completed": false,
+      "stage": "vegetative",
+      "potSize": null,
+      "createdAt": "2025-07-28T20:58:09.769Z"
+    },
+    {
+      "id": "15efd3b7-7952-4c35-9549-69e2d2aa0163",
+      "plantId": "423d9def-f1b5-48e8-bc49-4a447c1be7b7",
+      "date": "2025-09-26",
+      "task": "Begin transition nutrients (lower N, higher P-K)",
+      "completed": false,
+      "stage": "vegetative",
+      "potSize": null,
+      "createdAt": "2025-07-28T20:58:09.829Z"
+    },
+    {
+      "id": "02c3f935-44fa-4105-ab1e-4bc2f2bbce9c",
+      "plantId": "423d9def-f1b5-48e8-bc49-4a447c1be7b7",
+      "date": "2025-09-29",
+      "task": "Watch for first pistils (flower sites)",
+      "completed": false,
+      "stage": "vegetative",
+      "potSize": null,
+      "createdAt": "2025-07-28T20:58:09.888Z"
+    },
+    {
+      "id": "47b1de74-7c72-48ae-a618-77515ee72773",
+      "plantId": "423d9def-f1b5-48e8-bc49-4a447c1be7b7",
+      "date": "2025-10-02",
+      "task": "Full flowering nutrients (1000-1200 PPM)",
+      "completed": false,
+      "stage": "vegetative",
+      "potSize": null,
+      "createdAt": "2025-07-28T20:58:09.948Z"
+    },
+    {
+      "id": "8700f3a8-4e6d-452e-8f9a-13abad738f34",
+      "plantId": "423d9def-f1b5-48e8-bc49-4a447c1be7b7",
+      "date": "2025-10-06",
+      "task": "Remove male plants if not feminized",
+      "completed": false,
+      "stage": "vegetative",
+      "potSize": null,
+      "createdAt": "2025-07-28T20:58:10.007Z"
+    },
+    {
+      "id": "6a133a08-b897-46e4-93f1-4f3453e430bd",
+      "plantId": "423d9def-f1b5-48e8-bc49-4a447c1be7b7",
+      "date": "2025-10-09",
+      "task": "Lollipop lower branches (remove small buds)",
+      "completed": false,
+      "stage": "vegetative",
+      "potSize": null,
+      "createdAt": "2025-07-28T20:58:10.067Z"
+    },
+    {
+      "id": "fcaededd-ced4-44c5-aabb-21df947f6d98",
+      "plantId": "423d9def-f1b5-48e8-bc49-4a447c1be7b7",
+      "date": "2025-10-13",
+      "task": "Monitor for nutrient burn - adjust if needed",
+      "completed": false,
+      "stage": "vegetative",
+      "potSize": null,
+      "createdAt": "2025-07-28T20:58:10.126Z"
+    },
+    {
+      "id": "396afa94-aebf-4762-8b89-bec8a5dc3aff",
+      "plantId": "423d9def-f1b5-48e8-bc49-4a447c1be7b7",
+      "date": "2025-10-16",
+      "task": "Increase P-K nutrients for bud development",
+      "completed": false,
+      "stage": "vegetative",
+      "potSize": null,
+      "createdAt": "2025-07-28T20:58:10.185Z"
+    },
+    {
+      "id": "11cc25a5-67c0-4360-ab9d-87a3925d59d5",
+      "plantId": "423d9def-f1b5-48e8-bc49-4a447c1be7b7",
+      "date": "2025-10-20",
+      "task": "Check trichomes with jeweler's loupe",
+      "completed": false,
+      "stage": "vegetative",
+      "potSize": null,
+      "createdAt": "2025-07-28T20:58:10.244Z"
+    },
+    {
+      "id": "cc60ecf1-5245-4808-93a7-aa340aeb1000",
+      "plantId": "423d9def-f1b5-48e8-bc49-4a447c1be7b7",
+      "date": "2025-10-23",
+      "task": "Reduce nitrogen further, max P-K",
+      "completed": false,
+      "stage": "vegetative",
+      "potSize": null,
+      "createdAt": "2025-07-28T20:58:10.304Z"
+    },
+    {
+      "id": "5bf409a7-0e9f-4432-a847-1c2ee99606cc",
+      "plantId": "423d9def-f1b5-48e8-bc49-4a447c1be7b7",
+      "date": "2025-10-27",
+      "task": "Monitor trichomes - 10% amber for head high",
+      "completed": false,
+      "stage": "vegetative",
+      "potSize": null,
+      "createdAt": "2025-07-28T20:58:10.363Z"
+    },
+    {
+      "id": "7b0014ee-6caa-4cb2-9598-95f61fe38b44",
+      "plantId": "423d9def-f1b5-48e8-bc49-4a447c1be7b7",
+      "date": "2025-10-30",
+      "task": "Check for bud rot and powdery mildew",
+      "completed": false,
+      "stage": "vegetative",
+      "potSize": null,
+      "createdAt": "2025-07-28T20:58:10.422Z"
+    },
+    {
+      "id": "334aeb39-e6e4-4370-a9b7-66af4c33af6d",
+      "plantId": "423d9def-f1b5-48e8-bc49-4a447c1be7b7",
+      "date": "2025-11-03",
+      "task": "Begin flushing with pH'd water only",
+      "completed": false,
+      "stage": "vegetative",
+      "potSize": null,
+      "createdAt": "2025-07-28T20:58:10.482Z"
+    },
+    {
+      "id": "81d85748-2249-46c5-a3ac-2cc9d850443d",
+      "plantId": "423d9def-f1b5-48e8-bc49-4a447c1be7b7",
+      "date": "2025-11-06",
+      "task": "Trichomes 20-30% amber for body effect",
+      "completed": false,
+      "stage": "vegetative",
+      "potSize": null,
+      "createdAt": "2025-07-28T20:58:10.543Z"
+    },
+    {
+      "id": "d360cf6c-e14c-4dd1-9791-330b9e3f8ff5",
+      "plantId": "423d9def-f1b5-48e8-bc49-4a447c1be7b7",
+      "date": "2025-11-10",
+      "task": "Final flush - 48 hours darkness before harvest",
+      "completed": false,
+      "stage": "vegetative",
+      "potSize": null,
+      "createdAt": "2025-07-28T20:58:10.603Z"
+    },
+    {
+      "id": "c8529f2d-3a73-4cf4-ba22-f4e979ea9fcc",
+      "plantId": "423d9def-f1b5-48e8-bc49-4a447c1be7b7",
+      "date": "2025-11-12",
+      "task": "Harvest when trichomes are 30% amber",
+      "completed": false,
+      "stage": "vegetative",
+      "potSize": null,
+      "createdAt": "2025-07-28T20:58:10.662Z"
+    },
+    {
+      "id": "0f11d237-baa1-4910-b933-01e8b0ad0473",
+      "plantId": "423d9def-f1b5-48e8-bc49-4a447c1be7b7",
+      "date": "2025-11-13",
+      "task": "Wet trim fan leaves and sugar leaves",
+      "completed": false,
+      "stage": "vegetative",
+      "potSize": null,
+      "createdAt": "2025-07-28T20:58:10.721Z"
+    },
+    {
+      "id": "bd498831-924a-4fac-a128-806018acb66e",
+      "plantId": "423d9def-f1b5-48e8-bc49-4a447c1be7b7",
+      "date": "2025-11-14",
+      "task": "Hang dry in 60°F, 60% humidity, dark room",
+      "completed": false,
+      "stage": "vegetative",
+      "potSize": null,
+      "createdAt": "2025-07-28T20:58:10.781Z"
+    },
+    {
+      "id": "4be7c1ca-ae79-4e0b-8ba4-cae65d404977",
+      "plantId": "423d9def-f1b5-48e8-bc49-4a447c1be7b7",
+      "date": "2025-11-20",
+      "task": "Check drying - stems should snap, not bend",
+      "completed": false,
+      "stage": "vegetative",
+      "potSize": null,
+      "createdAt": "2025-07-28T20:58:10.840Z"
+    },
+    {
+      "id": "7b7ce740-d262-40db-abb0-1c70465c8680",
+      "plantId": "423d9def-f1b5-48e8-bc49-4a447c1be7b7",
+      "date": "2025-11-22",
+      "task": "Begin curing in airtight jars",
+      "completed": false,
+      "stage": "vegetative",
+      "potSize": null,
+      "createdAt": "2025-07-28T20:58:10.899Z"
+    },
+    {
+      "id": "05dcbfaf-cd89-4243-9a30-9abe8e1e2bce",
+      "plantId": "423d9def-f1b5-48e8-bc49-4a447c1be7b7",
+      "date": "2025-11-29",
+      "task": "Burp jars daily for first week of cure",
+      "completed": false,
+      "stage": "vegetative",
+      "potSize": null,
+      "createdAt": "2025-07-28T20:58:10.958Z"
+    },
+    {
+      "id": "c66cad5e-2ade-4aa4-9be7-3722a1eb17cb",
+      "plantId": "423d9def-f1b5-48e8-bc49-4a447c1be7b7",
+      "date": "2025-12-06",
+      "task": "Burp jars every 2-3 days",
+      "completed": false,
+      "stage": "vegetative",
+      "potSize": null,
+      "createdAt": "2025-07-28T20:58:11.018Z"
+    },
+    {
+      "id": "101f1295-d8cf-4613-bc95-ec6243bcbf37",
+      "plantId": "423d9def-f1b5-48e8-bc49-4a447c1be7b7",
+      "date": "2025-12-20",
+      "task": "Optimal cure complete",
+      "completed": false,
+      "stage": "vegetative",
+      "potSize": null,
+      "createdAt": "2025-07-28T20:58:11.078Z"
+    }
+  ],
+  "deviceStates": [
+    {
+      "id": "dc534d30-29c9-469a-87fa-5ee091520f15",
+      "plantId": null,
+      "deviceGroup": null,
+      "deviceType": "pump",
+      "name": "Device",
+      "isOn": false,
+      "autoMode": false,
+      "wattage": null,
+      "distanceFromPlant": null,
+      "isDimmable": false,
+      "currentIntensity": 100,
+      "lastToggled": "2025-07-27T14:55:12.103Z"
+    },
+    {
+      "id": "235f2fd3-1073-4269-a306-f90267b9bee2",
+      "plantId": "95b107bf-bcff-4e2f-bd3c-ad1f2eb11d7c",
+      "deviceGroup": "tent-1",
+      "deviceType": "light",
+      "name": "light",
+      "isOn": true,
+      "autoMode": true,
+      "wattage": 100,
+      "distanceFromPlant": 60,
+      "isDimmable": true,
+      "currentIntensity": 100,
+      "lastToggled": "2025-07-28T20:58:40.867Z"
+    },
+    {
+      "id": "857d88fc-378f-4880-82c3-1d44bc955e64",
+      "plantId": null,
+      "deviceGroup": null,
+      "deviceType": "fan",
+      "name": "Device",
+      "isOn": false,
+      "autoMode": false,
+      "wattage": null,
+      "distanceFromPlant": null,
+      "isDimmable": false,
+      "currentIntensity": 100,
+      "lastToggled": "2025-07-28T17:52:50.967Z"
+    },
+    {
+      "id": "f70e6db5-8210-4951-88be-ac3fafb72780",
+      "plantId": "423d9def-f1b5-48e8-bc49-4a447c1be7b7",
+      "deviceGroup": "tent-1",
+      "deviceType": "fan",
+      "name": "f",
+      "isOn": false,
+      "autoMode": false,
+      "wattage": null,
+      "distanceFromPlant": null,
+      "isDimmable": false,
+      "currentIntensity": 100,
+      "lastToggled": "2025-07-28T20:58:49.949Z"
+    },
+    {
+      "id": "3f49ccf4-dafc-44e2-b89b-b955da2b59d0",
+      "plantId": null,
+      "deviceGroup": null,
+      "deviceType": "light",
+      "name": "Device",
+      "isOn": false,
+      "autoMode": false,
+      "wattage": null,
+      "distanceFromPlant": null,
+      "isDimmable": false,
+      "currentIntensity": 100,
+      "lastToggled": "2025-07-28T17:56:32.591Z"
+    },
+    {
+      "id": "ab21661a-9a37-4db7-b7da-b2b00b67f2c8",
+      "plantId": "423d9def-f1b5-48e8-bc49-4a447c1be7b7",
+      "deviceGroup": "tent-1",
+      "deviceType": "pump",
+      "name": "p",
+      "isOn": false,
+      "autoMode": false,
+      "wattage": null,
+      "distanceFromPlant": null,
+      "isDimmable": false,
+      "currentIntensity": 100,
+      "lastToggled": "2025-07-28T20:58:56.711Z"
+    }
+  ],
+  "timestamp": "2025-07-29T00:52:58.554Z"
+}
