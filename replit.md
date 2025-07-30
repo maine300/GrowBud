@@ -12,29 +12,33 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Changes (Latest Session)
 
-### Completed Features - Advanced Dashboard Customization
-- **Enhanced Widget Management System**: Complete widget removal, repositioning to taskbar, or hiding functionality
-- **Advanced Layout Options**: Added Freeform layout for complete drag-and-drop positioning alongside Grid, Masonry, and Compact layouts
-- **Widget Taskbar System**: Collapsible taskbar that holds widgets for quick access without cluttering the main dashboard
-- **Widget Size Controls**: Expanded sizing options (Small/Medium/Large/XLarge) for all widgets with individual scaling
-- **Mobile-Responsive Design**: Three mobile layout modes - Stack (vertical), Tabs (horizontal navigation), and Accordion (collapsible sections)
-- **Drag & Drop Interface**: Optional drag-and-drop functionality for repositioning widgets in real-time
-- **Widget Header Controls**: Individual widget management with resize, move, hide, and position controls accessible via hover
-- **Advanced Settings Panel**: Comprehensive settings interface with Basic and Advanced tabs for granular customization
-- **Real-time Layout Preview**: Visual preview of layout changes with immediate feedback
-- **Persistent Widget States**: All customizations saved to localStorage with automatic state restoration
+### Completed Features
+- **Fixed Delete Plant Functionality**: Plant deletion now properly removes related records (photos, calendar events) before deleting the plant itself
+- **Customizable Dashboard**: Full dashboard customization system with multiple layout options and widget sizing
+- **Settings Page**: Comprehensive settings interface accessible from dashboard header (/settings route)
+- **Widget Size Controls**: Individual sizing (Small/Medium/Large) for Environment, Plants, Calendar, Controls, and Analytics widgets
+- **Layout Options**: Grid, Masonry, and Compact layout modes with real-time preview
+- **Display Controls**: Compact mode, grid lines toggle, theme selection, and adjustable refresh intervals (1-30 seconds)
+- **Editable Calendar Tasks**: Users can click on any calendar task to edit the text inline. Click to edit, Enter to save, Escape to cancel
+- **Complete Cannabis Growing Schedule**: Added comprehensive 145-day seed-to-harvest schedule with professional PPM levels, watering schedules, and advanced techniques (LST, SCROG, topping, lollipopping)
+- **Feeding Schedule Upload on Plant Pages**: Added feeding schedule upload feature directly to individual plant detail pages for better accessibility
+- **Professional Growing Techniques**: Schedule includes specific PPM levels (200-1200), timing for techniques, trichome monitoring, and proper curing processes
 
-### Technical Implementation - Dashboard Enhancement
-- **Enhanced DashboardSettings Interface**: Extended with new properties for advanced customization (hiddenWidgets, taskbarWidgets, widgetPositions, freeform layout, mobile layouts, drag-drop)
-- **Advanced Hook Functions**: Added moveWidgetToTaskbar, moveWidgetToDashboard, hideWidget, reorderWidgets, updateWidgetPosition utility functions
-- **Component Architecture**: Created modular components (WidgetTaskbar, WidgetHeader, MobileDashboard, AdvancedSettings) for scalable customization
-- **Mobile-First Design**: Implemented responsive breakpoints with dedicated mobile layout components and touch-friendly interfaces
-- **Widget Management System**: Built comprehensive widget lifecycle management with state transitions between dashboard, taskbar, and hidden states
-- **Layout Engine**: Enhanced layout calculation with support for freeform positioning, responsive grid systems, and dynamic sizing
-- **Settings Architecture**: Two-tier settings system (Basic/Advanced) with tabbed interface and real-time preview functionality
-- **TypeScript Integration**: Full type safety across all new components with proper interface definitions and type guards
+### Technical Implementation
+- Fixed DatabaseStorage.deletePlant() to handle foreign key constraints properly
+- Created useDashboardSettings hook for persistent settings management via localStorage
+- Added Settings page with comprehensive dashboard customization controls
+- Enhanced calendar event generation endpoint with complete cannabis lifecycle
+- Added EditableTaskItem component with inline editing capabilities
+- Integrated feeding schedule upload dialog into plant detail sidebar
+- Complete schedule option generates all stages from seed to harvest (145 days total)
+- Implemented dynamic widget sizing and layout system with CSS class generation
+- **ESP32/ESP8266 Integration**: Added complete hardware integration with Arduino code for sensor reading and device control
+- **Stage-Based Light Automation**: Fixed light schedules to properly reflect plant growth stages (16/8 seed, 18/6 veg, 12/12 flower)
+- **Plant Height Tracking**: Added height field to database with growth insights and stage recommendations
+- **Professional Analytics**: Enhanced analytics with real height-based growth rate calculations
 
-Date: July 29, 2025
+Date: January 28, 2025
 
 ## System Architecture
 
