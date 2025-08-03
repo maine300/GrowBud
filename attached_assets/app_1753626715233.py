@@ -160,13 +160,11 @@ def home():
 def list_plants():
     return render_template('plants.html', plants=plants)
 
-@app.route('/sensor-data')
-def sensor_data():
-    return jsonify({
-        'temperature': 22.5,
-        'humidity': 55.0,
-        'soil': 300
-    })
+@app.route('/sensor-data', methods=['POST'])
+def receive_sensor_data():
+    data = request.json
+    print("Received sensor data:", data)
+    return jsonify({"message": "Sensor data received"}), 200
 
 @app.route('/control', methods=['POST'])
 def control():
