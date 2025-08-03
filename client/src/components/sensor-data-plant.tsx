@@ -119,16 +119,32 @@ export default function SensorDataPlant({
         </div>
 
         <Button
-          variant="outline"
-          className="mt-4 sm:mt-0"
-          onClick={() => refetch()}
-          disabled={isFetching}
-        >
-          <RotateCw
-            className={`w-4 h-4 mr-2 ${isFetching ? "animate-spin" : ""}`}
-          />
-          {isFetching ? "Refreshing..." : "Refresh Now"}
-        </Button>
+  variant="outline"
+  className="mt-4 sm:mt-0"
+  onClick={async () => {
+    try {
+      const res = await fetch(`/api/sensor-trigger/${plant.deviceGroup}`, {
+        method: "POST",
+      });
+      const json = await res.json();
+      console.log("Trigger sent:", json);
+
+      // Wait ~3 seconds to let ESP32 respond with fresh data
+      await new Promise((resolve) => setTimeout(resolve, 3000));
+
+      refetch();
+    } catch (err) {
+      console.error("Error triggering sensor refresh:", err);
+    }
+  }}
+  disabled={isFetching}
+>
+  <RotateCw
+    className={`w-4 h-4 mr-2 ${isFetching ? "animate-spin" : ""}`}
+  />
+  {isFetching ? "Refreshing..." : "Refresh Now"}
+</Button>
+
       </CardHeader>
 
       <CardContent>
