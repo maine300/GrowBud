@@ -22,6 +22,8 @@ TELEGRAM_CHAT_ID = os.getenv('TELEGRAM_CHAT_ID')
 
 app = Flask(__name__)
 
+sensor_data_storage = []  # Temporary in-memory store
+
 # Plant stages
 STAGE_PRESETS = {
     "seed": [
@@ -160,11 +162,25 @@ def home():
 def list_plants():
     return render_template('plants.html', plants=plants)
 
-@app.route('/sensor-data', methods=['POST'])
+
+@app.route('/api/sensor-data', methods=['POST'])
 def receive_sensor_data():
-    data = request.json
-    print("Received sensor data:", data)
-    return jsonify({"message": "Sensor data received"}), 200
+    data = request.get_json()
+
+    # Validate required fields
+    if not data or not all(k in data for k in ('plantId', 'temperature', 'humidity', 'soilMoisture')):
+        return jsonify({'error': 'Invalid sensor data'}), 400
+
+    # Optional: store in list or database
+    sensor_data_storage.append({
+        'plantId': data['plantId'],
+        'temperature': data['temperature'],
+        'humidity': data['humidity'],
+        'soilMoisture': data['soilMoisture'],
+        'timestamp': datetime.utcnow().isoformat()
+    })
+
+    return jsonify({'message': 'Sensor data received'}), 200
 
 @app.route('/control', methods=['POST'])
 def control():
