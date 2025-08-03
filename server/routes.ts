@@ -365,6 +365,55 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  const refreshTriggers = new Map<string, { timestamp: Date, triggered: boolean }>();
+  app.post("/api/sensor-trigger/:deviceGroup", async (req, res) => {
+    try {
+      const { deviceGroup } = req.params;
+      
+      // Set trigger for this device group
+      refreshTriggers.set(deviceGroup, {
+        timestamp: new Date(),
+        triggered: true
+      });
+      
+      // Clear trigger after 30 seconds to prevent stale triggers
+      setTimeout(() => {
+        refreshTriggers.delete(deviceGroup);
+      }, 30000);
+      
+      res.json({ 
+        message: `Sensor refresh triggered for ${deviceGroup}`,
+        timestamp: new Date().toISOString(),
+        trigger: true
+      });
+    } catch (error) {
+      res.status(500).json({ error: "Failed to trigger sensor refresh" });
+    }
+  });
+  // Check if sensor refresh is triggered for a device group
+  app.get("/api/sensor-trigger/:deviceGroup", async (req, res) => {
+    try {
+      const { deviceGroup } = req.params;
+      const trigger = refreshTriggers.get(deviceGroup);
+      
+      if (trigger && trigger.triggered) {
+        // Mark as consumed
+        refreshTriggers.delete(deviceGroup);
+        res.json({ 
+          triggered: true,
+          timestamp: trigger.timestamp.toISOString()
+        });
+      } else {
+        res.json({ 
+          triggered: false
+        });
+      }
+    } catch (error) {
+      res.status(500).json({ error: "Failed to check sensor trigger" });
+    }
+  });
+
+
   app.post("/api/photos", upload.single('photo'), async (req, res) => {
     try {
       if (!req.file) {
