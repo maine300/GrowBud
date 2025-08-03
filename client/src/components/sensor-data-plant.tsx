@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Thermometer, Droplets, Sprout } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Thermometer, Droplets, Sprout, RotateCw } from "lucide-react";
 import type { Plant } from "@shared/schema";
 
 interface SensorDataPlantProps {
@@ -18,18 +19,27 @@ interface SensorReading {
   recordedAt: string;
 }
 
-export default function SensorDataPlant({ plantId, plant }: SensorDataPlantProps) {
-  const { data: allSensorData = [] } = useQuery<SensorReading[]>({
+export default function SensorDataPlant({
+  plantId,
+  plant,
+}: SensorDataPlantProps) {
+  const {
+    data: allSensorData = [],
+    refetch,
+    isFetching,
+  } = useQuery<SensorReading[]>({
     queryKey: ["/api/sensor-data"],
+    refetchInterval: 3600000, // 1 hour in ms
   });
 
-  // Get sensor data for this plant or its device group
-  const sensorData = Array.isArray(allSensorData) && allSensorData.length > 0
-    ? allSensorData.find((data: SensorReading) => 
-        data.plantId === plantId || 
-        (data.deviceGroup && data.deviceGroup === plant.deviceGroup)
-      ) || allSensorData[0] // Fallback to first available sensor data
-    : undefined;
+  const sensorData =
+    Array.isArray(allSensorData) && allSensorData.length > 0
+      ? allSensorData.find(
+          (data: SensorReading) =>
+            data.plantId === plantId ||
+            (data.deviceGroup && data.deviceGroup === plant.deviceGroup),
+        ) || allSensorData[0]
+      : undefined;
 
   const getStatusColor = (value: number, type: string) => {
     switch (type) {
@@ -83,10 +93,9 @@ export default function SensorDataPlant({ plantId, plant }: SensorDataPlantProps
             <Thermometer className="w-12 h-12 mx-auto mb-4 opacity-50" />
             <p>No sensor data available</p>
             <p className="text-sm mt-2">
-              {plant.deviceGroup 
+              {plant.deviceGroup
                 ? `Configure sensors for group: ${plant.deviceGroup}`
-                : "Add this plant to a device group or configure individual sensors"
-              }
+                : "Add this plant to a device group or configure individual sensors"}
             </p>
           </div>
         </CardContent>
@@ -96,59 +105,75 @@ export default function SensorDataPlant({ plantId, plant }: SensorDataPlantProps
 
   return (
     <Card className="bg-gray-800 border-gray-700">
-      <CardHeader>
-        <CardTitle className="text-xl font-semibold text-white flex items-center">
-          <Thermometer className="w-5 h-5 mr-2" />
-          Environmental Sensors
-        </CardTitle>
-        {sensorData.deviceGroup && sensorData.plantId !== plantId && (
-          <p className="text-sm text-blue-400">Shared sensors (Group: {sensorData.deviceGroup})</p>
-        )}
+      <CardHeader className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <CardTitle className="text-xl font-semibold text-white flex items-center">
+            <Thermometer className="w-5 h-5 mr-2" />
+            Environmental Sensors
+          </CardTitle>
+          {sensorData.deviceGroup && sensorData.plantId !== plantId && (
+            <p className="text-sm text-blue-400">
+              Shared sensors (Group: {sensorData.deviceGroup})
+            </p>
+          )}
+        </div>
+
+        <Button
+          variant="outline"
+          className="mt-4 sm:mt-0"
+          onClick={() => refetch()}
+          disabled={isFetching}
+        >
+          <RotateCw
+            className={`w-4 h-4 mr-2 ${isFetching ? "animate-spin" : ""}`}
+          />
+          {isFetching ? "Refreshing..." : "Refresh Now"}
+        </Button>
       </CardHeader>
-      
+
       <CardContent>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div className="bg-gray-700 rounded-lg p-4">
-            <div className="flex items-center justify-between mb-2">
-              <div className="flex items-center space-x-2">
-                <Thermometer className="w-5 h-5 text-blue-400" />
-                <span className="text-gray-300 text-sm">Temperature</span>
-              </div>
+            <div className="flex items-center space-x-2 mb-2">
+              <Thermometer className="w-5 h-5 text-blue-400" />
+              <span className="text-gray-300 text-sm">Temperature</span>
             </div>
             <div className="text-2xl font-bold text-white mb-1">
               {sensorData.temperature}°C
             </div>
-            <div className={`text-sm ${getStatusColor(sensorData.temperature, "temperature")}`}>
+            <div
+              className={`text-sm ${getStatusColor(sensorData.temperature, "temperature")}`}
+            >
               {getStatusText(sensorData.temperature, "temperature")}
             </div>
           </div>
 
           <div className="bg-gray-700 rounded-lg p-4">
-            <div className="flex items-center justify-between mb-2">
-              <div className="flex items-center space-x-2">
-                <Droplets className="w-5 h-5 text-blue-400" />
-                <span className="text-gray-300 text-sm">Humidity</span>
-              </div>
+            <div className="flex items-center space-x-2 mb-2">
+              <Droplets className="w-5 h-5 text-blue-400" />
+              <span className="text-gray-300 text-sm">Humidity</span>
             </div>
             <div className="text-2xl font-bold text-white mb-1">
               {sensorData.humidity}%
             </div>
-            <div className={`text-sm ${getStatusColor(sensorData.humidity, "humidity")}`}>
+            <div
+              className={`text-sm ${getStatusColor(sensorData.humidity, "humidity")}`}
+            >
               {getStatusText(sensorData.humidity, "humidity")}
             </div>
           </div>
 
           <div className="bg-gray-700 rounded-lg p-4">
-            <div className="flex items-center justify-between mb-2">
-              <div className="flex items-center space-x-2">
-                <Sprout className="w-5 h-5 text-green-400" />
-                <span className="text-gray-300 text-sm">Soil Moisture</span>
-              </div>
+            <div className="flex items-center space-x-2 mb-2">
+              <Sprout className="w-5 h-5 text-green-400" />
+              <span className="text-gray-300 text-sm">Soil Moisture</span>
             </div>
             <div className="text-2xl font-bold text-white mb-1">
               {sensorData.soilMoisture}%
             </div>
-            <div className={`text-sm ${getStatusColor(sensorData.soilMoisture, "soilMoisture")}`}>
+            <div
+              className={`text-sm ${getStatusColor(sensorData.soilMoisture, "soilMoisture")}`}
+            >
               {getStatusText(sensorData.soilMoisture, "soilMoisture")}
             </div>
           </div>

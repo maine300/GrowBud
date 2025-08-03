@@ -5,7 +5,13 @@ import { ArrowLeft, Camera, Calendar, BarChart3, Upload } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import CameraSection from "@/components/camera-section";
 import CareCalendar from "@/components/care-calendar";
 import FeedingScheduleUpload from "@/components/feeding-schedule-upload";
@@ -15,12 +21,31 @@ import SensorDataPlant from "@/components/sensor-data-plant";
 import PlantHeightTracker from "@/components/plant-height-tracker";
 import { useToast } from "@/hooks/use-toast";
 import type { Plant, Photo, CalendarEvent } from "@shared/schema";
+import StageFeedingScheduleWidget from "@/components/stage-feeding-schedule-widget";
+import AutoDeviceTrigger from "@/components/AutoDeviceTrigger";
 
 export default function PlantDetail() {
+  const { plantId } = useParams();
   const { id } = useParams();
   const queryClient = useQueryClient();
   const { toast } = useToast();
   const [showFeedingUpload, setShowFeedingUpload] = useState(false);
+
+  const { data: devices = [] } = useQuery({
+    queryKey: ["devices"],
+    queryFn: async () => {
+      const res = await fetch("/api/devices");
+      return res.json();
+    },
+  });
+
+  const stageMap: Record<string, string> = {
+    veg: "vegetative",
+    flower: "flowering",
+    seed: "seed",
+    vegetative: "vegetative",
+    flowering: "flowering",
+  };
 
   const { data: plant, isLoading: plantLoading } = useQuery<Plant>({
     queryKey: ["/api/plants", id],
@@ -28,13 +53,26 @@ export default function PlantDetail() {
 
   const { data: photos = [] } = useQuery<Photo[]>({
     queryKey: ["/api/photos"],
-    select: (data) => data.filter(photo => photo.plantId === id),
+    select: (data) => data.filter((photo) => photo.plantId === id),
   });
 
   const { data: calendarEvents = [] } = useQuery<CalendarEvent[]>({
     queryKey: ["/api/calendar-events"],
-    select: (data) => data.filter(event => event.plantId === id),
+    select: (data) => data.filter((event) => event.plantId === id),
   });
+
+  const { data: sensorDataList = [] } = useQuery({
+    queryKey: ["/api/sensor-data"],
+  });
+
+  const sensorData = plant
+    ? sensorDataList
+        .filter((d: any) => d.plantId === plant.id)
+        .sort(
+          (a: any, b: any) =>
+            new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime(),
+        )[0]
+    : null;
 
   const deletePlantMutation = useMutation({
     mutationFn: async () => {
@@ -98,7 +136,9 @@ export default function PlantDetail() {
     return (
       <div className="min-h-screen bg-gray-900 flex items-center justify-center">
         <div className="text-center">
-          <h2 className="text-2xl font-bold text-white mb-4">Plant not found</h2>
+          <h2 className="text-2xl font-bold text-white mb-4">
+            Plant not found
+          </h2>
           <Link href="/">
             <Button variant="outline">
               <ArrowLeft className="w-4 h-4 mr-2" />
@@ -110,27 +150,33 @@ export default function PlantDetail() {
     );
   }
 
-  const latestPhoto = photos.sort((a, b) => 
-    new Date(b.capturedAt).getTime() - new Date(a.capturedAt).getTime()
+  const latestPhoto = photos.sort(
+    (a, b) =>
+      new Date(b.capturedAt).getTime() - new Date(a.capturedAt).getTime(),
   )[0];
 
   const photoHistory = photos
-    .sort((a, b) => new Date(b.capturedAt).getTime() - new Date(a.capturedAt).getTime())
+    .sort(
+      (a, b) =>
+        new Date(b.capturedAt).getTime() - new Date(a.capturedAt).getTime(),
+    )
     .slice(1, 6);
 
   const plantAge = Math.floor(
-    (Date.now() - new Date(plant.plantedDate).getTime()) / (1000 * 60 * 60 * 24)
+    (Date.now() - new Date(plant.plantedDate).getTime()) /
+      (1000 * 60 * 60 * 24),
   );
 
-  const todaysTasks = calendarEvents.filter(event => {
-    const today = new Date().toISOString().split('T')[0];
+  const todaysTasks = calendarEvents.filter((event) => {
+    const today = new Date().toISOString().split("T")[0];
     return event.date === today && !event.completed;
   });
 
   const getNextStage = (currentStage: string) => {
     const stages = ["seed", "vegetative", "flowering", "harvest"];
     const currentIndex = stages.indexOf(currentStage);
-    if (currentIndex === -1 || currentIndex === stages.length - 1) return currentStage;
+    if (currentIndex === -1 || currentIndex === stages.length - 1)
+      return currentStage;
     return stages[currentIndex + 1];
   };
 
@@ -152,9 +198,13 @@ export default function PlantDetail() {
                 <div className="flex items-center space-x-4 mt-2">
                   <Badge variant="secondary">{plant.strainType}</Badge>
                   <Badge variant="outline">{plant.location}</Badge>
-                  <Badge 
-                    variant={plant.stage === 'flowering' ? 'default' : 'secondary'}
-                    className={plant.stage === 'flowering' ? 'bg-plant-green-600' : ''}
+                  <Badge
+                    variant={
+                      plant.stage === "flowering" ? "default" : "secondary"
+                    }
+                    className={
+                      plant.stage === "flowering" ? "bg-plant-green-600" : ""
+                    }
                   >
                     {plant.stage}
                   </Badge>
@@ -162,11 +212,11 @@ export default function PlantDetail() {
               </div>
             </div>
             <div className="flex items-center space-x-2">
-              <PlantColorPicker 
-                plantId={plant.id} 
-                currentColor={plant.color || "#22c55e"} 
+              <PlantColorPicker
+                plantId={plant.id}
+                currentColor={plant.color || "#22c55e"}
               />
-              {plant.stage !== 'harvest' && (
+              {plant.stage !== "harvest" && (
                 <Button
                   variant="outline"
                   size="sm"
@@ -174,7 +224,9 @@ export default function PlantDetail() {
                   disabled={flipStageMutation.isPending}
                   className="bg-plant-green-600 hover:bg-plant-green-700 border-plant-green-500 text-white"
                 >
-                  {flipStageMutation.isPending ? 'Advancing...' : `Flip to ${getNextStage(plant.stage)}`}
+                  {flipStageMutation.isPending
+                    ? "Advancing..."
+                    : `Flip to ${getNextStage(plant.stage)}`}
                 </Button>
               )}
               <Button
@@ -195,28 +247,40 @@ export default function PlantDetail() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
           <Card className="bg-gray-800 border-gray-700">
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-gray-400">Age</CardTitle>
+              <CardTitle className="text-sm font-medium text-gray-400">
+                Age
+              </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-white">{plantAge} days</div>
+              <div className="text-2xl font-bold text-white">
+                {plantAge} days
+              </div>
             </CardContent>
           </Card>
 
           <Card className="bg-gray-800 border-gray-700">
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-gray-400">Photos</CardTitle>
+              <CardTitle className="text-sm font-medium text-gray-400">
+                Photos
+              </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-white">{photos.length}</div>
+              <div className="text-2xl font-bold text-white">
+                {photos.length}
+              </div>
             </CardContent>
           </Card>
 
           <Card className="bg-gray-800 border-gray-700">
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-gray-400">Tasks Today</CardTitle>
+              <CardTitle className="text-sm font-medium text-gray-400">
+                Tasks Today
+              </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-white">{todaysTasks.length}</div>
+              <div className="text-2xl font-bold text-white">
+                {todaysTasks.length}
+              </div>
             </CardContent>
           </Card>
         </div>
@@ -225,6 +289,12 @@ export default function PlantDetail() {
         <div className="mb-8">
           <CameraSection plantId={plant.id} photos={photos} />
         </div>
+
+        <StageFeedingScheduleWidget
+          plantStage={stageMap[plant.stage] || plant.stage}
+          potSize={plant.potSize}
+          nutrientBrand={plant.nutrientBrand || "Fox Farm"}
+        />
 
         {/* Calendar Section - Full Width */}
         <div className="mb-8 h-[48rem]">
@@ -249,9 +319,12 @@ export default function PlantDetail() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <Dialog open={showFeedingUpload} onOpenChange={setShowFeedingUpload}>
+            <Dialog
+              open={showFeedingUpload}
+              onOpenChange={setShowFeedingUpload}
+            >
               <DialogTrigger asChild>
-                <Button 
+                <Button
                   className="w-full bg-plant-green-600 hover:bg-plant-green-700"
                   onClick={() => setShowFeedingUpload(true)}
                 >
@@ -263,12 +336,15 @@ export default function PlantDetail() {
                 <DialogHeader>
                   <DialogTitle>Upload Feeding Schedule</DialogTitle>
                 </DialogHeader>
-                <FeedingScheduleUpload onClose={() => setShowFeedingUpload(false)} />
+                <FeedingScheduleUpload
+                  onClose={() => setShowFeedingUpload(false)}
+                />
               </DialogContent>
             </Dialog>
-            
+
             <p className="text-sm text-gray-400 mt-2">
-              Upload Excel, PDF, or CSV feeding schedules with color-coded growth stages
+              Upload Excel, PDF, or CSV feeding schedules with color-coded
+              growth stages
             </p>
           </CardContent>
         </Card>
@@ -285,7 +361,10 @@ export default function PlantDetail() {
             <CardContent>
               <div className="space-y-2">
                 {todaysTasks.map((task) => (
-                  <div key={task.id} className="flex items-center space-x-3 p-3 bg-gray-700 rounded-lg">
+                  <div
+                    key={task.id}
+                    className="flex items-center space-x-3 p-3 bg-gray-700 rounded-lg"
+                  >
                     <input
                       type="checkbox"
                       className="w-4 h-4 text-plant-green-600 rounded focus:ring-plant-green-500"
@@ -321,6 +400,18 @@ export default function PlantDetail() {
               </div>
             </CardContent>
           </Card>
+        )}
+
+        {sensorData && devices && (
+          <AutoDeviceTrigger
+            plant={plant}
+            sensorData={{
+              temperature: sensorData.temperature,
+              humidity: sensorData.humidity,
+              soilMoisture: sensorData.soilMoisture,
+            }}
+            devices={devices}
+          />
         )}
       </div>
     </div>
